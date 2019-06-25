@@ -1,6 +1,7 @@
 package com.example.musicplayer;
 
 import android.app.SearchManager;
+import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -49,6 +50,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         recyclerView = findViewById(R.id.songList);
         expanded_view = (LinearLayout) findViewById(R.id.expanded_view);
         collapsed_view = (RelativeLayout) findViewById(R.id.collapsed_view);

@@ -233,6 +233,7 @@ public class MainActivity extends AppCompatActivity {
                         if (askedPos + 1 < SongLibrary.songs.size()) {
                             initiateMusicPlayer(askedPos + 1);
                             askedPos++;
+                            SongLibrary.currentlyPlaying++;
                         }
                     }
                 }

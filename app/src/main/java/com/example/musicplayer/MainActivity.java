@@ -1,6 +1,7 @@
 package com.example.musicplayer;
 
 import android.app.SearchManager;
+import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -41,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     TextView current, end, title, title2;
     boolean playing = true, stopped = false;
     static  boolean started = false;
+    static final String ID = "SONG_ID";
     /*NotificationChannel channel;
     NotificationCompat.Builder mBuilder;
     NotificationManager manager;
@@ -62,7 +64,8 @@ public class MainActivity extends AppCompatActivity {
         play_or_pause_mini = findViewById(R.id.c_play_or_pause);
         repeater = findViewById(R.id.repeat);
         seekBar = findViewById(R.id.seekBar);
-        askedPos = 0;
+        askedPos = getSharedPreferences(getResources().getString(R.string.channel_name),MODE_PRIVATE).getInt(ID,0);
+        SongLibrary.currentlyPlaying = askedPos;
         //createNotificationChannel();
         initiateMusicPlayer(askedPos);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -123,6 +126,10 @@ public class MainActivity extends AppCompatActivity {
             } else {
                 mp.reset();
                 stopped = true;
+                SongLibrary.isPlaying = 0;
+                SharedPreferences.Editor editor = getSharedPreferences(getResources().getString(R.string.channel_name),MODE_PRIVATE).edit();
+                editor.putInt(ID,SongLibrary.currentlyPlaying);
+                editor.apply();
                 finishAffinity();
             }
             MainActivity.class.getDeclaredMethods();
@@ -186,11 +193,14 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void playSong(int asked) {
-        if(SongLibrary.isPlaying) {
+        if(SongLibrary.isPlaying >= 1) {
             try {
                 mp.setDataSource(SongLibrary.songs.get(asked).getSongLocation());//Write your location here
                 mp.prepare();
-                mp.start();
+                if(SongLibrary.isPlaying == 1)
+                    SongLibrary.isPlaying = 2;
+                else
+                    mp.start();
                 play_or_pause.setImageResource(R.drawable.pause);
                 play_or_pause_mini.setImageResource(R.drawable.pause);
                 initiateSeekBar();
@@ -199,7 +209,7 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         else {
-            SongLibrary.isPlaying = true;
+            SongLibrary.isPlaying++;
         }
     }
 
@@ -230,7 +240,7 @@ public class MainActivity extends AppCompatActivity {
                         play_or_pause.setImageResource(R.drawable.play);
                     } else if (!mp.isPlaying()) {
                         play_or_pause.setImageResource(R.drawable.play);
-                        if (askedPos + 1 < SongLibrary.songs.size()) {
+                        if (askedPos + 1 < SongLibrary.songs.size() && SongLibrary.isPlaying == 2) {
                             initiateMusicPlayer(askedPos + 1);
                             askedPos++;
                             SongLibrary.currentlyPlaying++;

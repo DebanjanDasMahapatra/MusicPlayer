@@ -10,6 +10,7 @@
         android:layout_height="60dp"
         android:src="@drawable/mp_logo"
         android:contentDescription="@string/app_name"
+        android:id="@+id/songLogo"
         android:layout_gravity="center_vertical"/>
 
     <LinearLayout

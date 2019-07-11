@@ -3,6 +3,8 @@ package com.example.musicplayer;
 import android.app.SearchManager;
 import android.content.SharedPreferences;
 import android.content.pm.ActivityInfo;
+import android.graphics.BitmapFactory;
+import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.CountDownTimer;
@@ -201,6 +203,12 @@ public class MainActivity extends AppCompatActivity {
                     editor.putInt(ID,SongLibrary.currentlyPlaying);
                     editor.apply();
                     mp.start();
+                    ((ImageView) findViewById(R.id.songImage)).setImageResource(R.drawable.mp_logo);
+                    MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                    retriever.setDataSource(SongLibrary.songs.get(asked).getSongLocation());
+                    byte[] albumArt = retriever.getEmbeddedPicture();
+                    if(albumArt.length > 0)
+                        ((ImageView) findViewById(R.id.songImage)).setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
                     mp.setLooping(SongLibrary.isLoopOn);
                 }
                 play_or_pause.setImageResource(R.drawable.pause);

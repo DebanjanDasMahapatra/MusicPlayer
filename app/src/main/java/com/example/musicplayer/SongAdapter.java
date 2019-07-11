@@ -2,12 +2,16 @@ package com.example.musicplayer;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
+import android.media.Image;
+import android.media.MediaMetadataRetriever;
 import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Filter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
@@ -36,6 +40,11 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
     public void onBindViewHolder(@NonNull MyViewHolder viewHolder, int i) {
         viewHolder.title.setText(song.get(i).getSongTitle());
         viewHolder.artist.setText(song.get(i).getSongArtist());
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+        retriever.setDataSource(song.get(i).getSongLocation());
+        byte[] albumArt = retriever.getEmbeddedPicture();
+        if(albumArt != null)
+            viewHolder.songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
         int duration = Integer.parseInt(song.get(i).getSongDuration())/1000;
         int mins = duration/60;
         int secs = duration%60;
@@ -88,11 +97,13 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
     class MyViewHolder extends RecyclerView.ViewHolder {
 
         TextView title, artist, duration;
+        ImageView songLogo;
         MyViewHolder(@NonNull View itemView) {
             super(itemView);
             title = itemView.findViewById(R.id.songTitleL);
             artist = itemView.findViewById(R.id.songArtistL);
             duration = itemView.findViewById(R.id.songDurationL);
+            songLogo = itemView.findViewById(R.id.songLogo);
         }
     }
 }

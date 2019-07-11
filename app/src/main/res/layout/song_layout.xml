@@ -3,11 +3,11 @@
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_gravity="center_vertical"
-    android:padding="5dp">
+    android:padding="3dp">
 
     <ImageView
-        android:layout_width="65dp"
-        android:layout_height="65dp"
+        android:layout_width="60dp"
+        android:layout_height="60dp"
         android:src="@drawable/mp_logo"
         android:contentDescription="@string/app_name"
         android:layout_gravity="center_vertical"/>
@@ -27,7 +27,7 @@
         android:layout_marginTop="5dp"
         android:layout_marginEnd="10dp"
         android:textColor="@android:color/black"
-        android:textSize="20sp"
+        android:textSize="18sp"
         android:singleLine="true"/>
 
     <RelativeLayout
@@ -45,6 +45,7 @@
         android:layout_marginEnd="100dp"
         android:singleLine="true"
         android:textColor="@android:color/darker_gray"
+        android:textSize="12sp"
         android:text="SONG ARTIST" />
 
         <TextView
@@ -55,6 +56,7 @@
             android:layout_marginBottom="10dp"
             android:layout_alignParentEnd="true"
             android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
             android:text="SONG DURATION" />
     </RelativeLayout>
     </LinearLayout>

@@ -127,9 +127,6 @@ public class MainActivity extends AppCompatActivity {
                 mp.reset();
                 stopped = true;
                 SongLibrary.isPlaying = 0;
-                SharedPreferences.Editor editor = getSharedPreferences(getResources().getString(R.string.channel_name),MODE_PRIVATE).edit();
-                editor.putInt(ID,SongLibrary.currentlyPlaying);
-                editor.apply();
                 finishAffinity();
             }
             MainActivity.class.getDeclaredMethods();
@@ -199,8 +196,13 @@ public class MainActivity extends AppCompatActivity {
                 mp.prepare();
                 if(SongLibrary.isPlaying == 1)
                     SongLibrary.isPlaying = 2;
-                else
+                else {
+                    SharedPreferences.Editor editor = getSharedPreferences(getResources().getString(R.string.channel_name),MODE_PRIVATE).edit();
+                    editor.putInt(ID,SongLibrary.currentlyPlaying);
+                    editor.apply();
                     mp.start();
+                    mp.setLooping(SongLibrary.isLoopOn);
+                }
                 play_or_pause.setImageResource(R.drawable.pause);
                 play_or_pause_mini.setImageResource(R.drawable.pause);
                 initiateSeekBar();
@@ -269,18 +271,14 @@ public class MainActivity extends AppCompatActivity {
                     play_or_pause_mini.setImageResource(R.drawable.pause);
                 }
                 break;
-            case R.id.rewind:
-                mp.seekTo(mp.getCurrentPosition() - 5000);
-                break;
-            case R.id.forward:
-                mp.seekTo(mp.getCurrentPosition() + 5000);
-                break;
             case R.id.repeat:
                 if (mp.isLooping()) {
                     mp.setLooping(false);
+                    SongLibrary.isLoopOn = false;
                     repeater.setBackgroundResource(R.drawable.controls);
                 } else {
                     mp.setLooping(true);
+                    SongLibrary.isLoopOn = true;
                     repeater.setBackgroundResource(R.drawable.controls_active);
                 }
                 break;

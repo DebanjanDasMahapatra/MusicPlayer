@@ -149,8 +149,10 @@ public class WelcomeScreen extends AppCompatActivity {
 
         if (cursor == null) {
             Toast.makeText(WelcomeScreen.this,"Something Went Wrong.", Toast.LENGTH_LONG).show();
+            ((ProgressBar) findViewById(R.id.progressBar)).setVisibility(View.INVISIBLE);
         } else if (!cursor.moveToFirst()) {
             Toast.makeText(WelcomeScreen.this,"No Music Found on SD Card.", Toast.LENGTH_LONG).show();
+            ((ProgressBar) findViewById(R.id.progressBar)).setVisibility(View.INVISIBLE);
         }
         else {
             int title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
@@ -165,7 +167,7 @@ public class WelcomeScreen extends AppCompatActivity {
                 if(SongLibrary.songs.size() == SongLibrary.cursorCount)
                     break;
             } while (cursor.moveToNext());
-            new CountDownTimer(2000, 10) {
+            new CountDownTimer(1000, 10) {
                 @Override
                 public void onTick(long millisUntilFinished) {
                 }

@@ -33,6 +33,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
     public MyViewHolder onCreateViewHolder(@NonNull ViewGroup viewGroup, int i) {
         LayoutInflater inflater = LayoutInflater.from(viewGroup.getContext());
         View view = inflater.inflate(R.layout.song_layout,viewGroup,false);
+        view.setBackgroundColor(context.getResources().getColor(SongLibrary.darkTheme ? R.color.black : R.color.white));
         return new MyViewHolder(view);
     }
 
@@ -40,6 +41,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
     public void onBindViewHolder(@NonNull MyViewHolder viewHolder, int i) {
         viewHolder.title.setText(song.get(i).getSongTitle());
         viewHolder.artist.setText(song.get(i).getSongArtist());
+        viewHolder.title.setTextColor(context.getResources().getColor(SongLibrary.darkTheme ? R.color.white : R.color.black));
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(song.get(i).getSongLocation());
         byte[] albumArt = retriever.getEmbeddedPicture();

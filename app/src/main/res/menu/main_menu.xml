@@ -7,4 +7,9 @@
         android:icon="@drawable/search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
+    <item
+        android:id="@+id/change_theme"
+        android:orderInCategory="100"
+        android:title="Dark Theme"
+        app:showAsAction="never" />
 </menu>

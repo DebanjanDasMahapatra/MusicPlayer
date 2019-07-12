@@ -6,5 +6,5 @@ class SongLibrary {
     static ArrayList<Song> songs = new ArrayList<>();
     static ArrayList<Song> originals = new ArrayList<>();
     static int cursorCount = 0, currentlyPlaying = 0, isPlaying = 0;
-    static boolean isLoopOn = false;
+    static boolean isLoopOn = false, darkTheme = false;
 }

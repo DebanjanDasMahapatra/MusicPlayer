@@ -15,6 +15,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
@@ -27,7 +28,6 @@ import android.widget.Toast;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.Locale;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     RelativeLayout collapsed_view;
     SlidingUpPanelLayout sliding_layout;
     MediaPlayer mp = new MediaPlayer();
-    ImageView play_or_pause, play_or_pause_mini, repeater, songLogo;
+    ImageView play_or_pause, play_or_pause_mini, repeater, songLogo, previous, next, previous2, next2;
     static int askedPos;
     SeekBar seekBar;
     TextView current, end, title, title2;
@@ -67,6 +67,10 @@ public class MainActivity extends AppCompatActivity {
         repeater = findViewById(R.id.repeat);
         songLogo = findViewById(R.id.songImage);
         seekBar = findViewById(R.id.seekBar);
+        previous = findViewById(R.id.previous);
+        previous2 = findViewById(R.id.c_previous);
+        next = findViewById(R.id.next);
+        next2 = findViewById(R.id.c_next);
         askedPos = getSharedPreferences(getResources().getString(R.string.channel_name),MODE_PRIVATE).getInt(ID,0);
         SongLibrary.currentlyPlaying = askedPos;
         //createNotificationChannel();
@@ -329,5 +333,46 @@ public class MainActivity extends AppCompatActivity {
             }
         });
         return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+
+        //noinspection SimplifiableIfStatement
+        if (id == R.id.change_theme) {
+            if(!SongLibrary.darkTheme) {
+                sliding_layout.setBackgroundColor(getResources().getColor(R.color.black));
+                title.setTextColor(getResources().getColor(R.color.white));
+                title2.setTextColor(getResources().getColor(R.color.white));
+                current.setTextColor(getResources().getColor(R.color.white));
+                end.setTextColor(getResources().getColor(R.color.white));
+                previous.setImageResource(R.drawable.skip_previous);
+                previous2.setImageResource(R.drawable.skip_previous);
+                next.setImageResource(R.drawable.skip_next);
+                next2.setImageResource(R.drawable.skip_next);
+                item.setTitle("Light Theme");
+            } else {
+                sliding_layout.setBackgroundColor(getResources().getColor(R.color.white));
+                title.setTextColor(getResources().getColor(R.color.black));
+                title2.setTextColor(getResources().getColor(R.color.black));
+                current.setTextColor(getResources().getColor(R.color.black));
+                end.setTextColor(getResources().getColor(R.color.black));
+                previous.setImageResource(R.drawable.skip_previous_black);
+                previous2.setImageResource(R.drawable.skip_previous_black);
+                next.setImageResource(R.drawable.skip_next_black);
+                next2.setImageResource(R.drawable.skip_next_black);
+                item.setTitle("Dark Theme");
+            }
+            SongLibrary.darkTheme = !SongLibrary.darkTheme;
+            songAdapter = new SongAdapter(SongLibrary.songs,MainActivity.this);
+            recyclerView.setAdapter(songAdapter);
+            return true;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

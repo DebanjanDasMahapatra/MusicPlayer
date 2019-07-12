@@ -3,13 +3,16 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item
         android:id="@+id/action_search"
-        android:title="Search"
+        android:title="@string/search_text"
         android:icon="@drawable/search"
         app:actionViewClass="android.support.v7.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
     <item
         android:id="@+id/change_theme"
-        android:orderInCategory="100"
-        android:title="Dark Theme"
+        android:title="@string/theme_text"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/app_info"
+        android:title="@string/info_text"
         app:showAsAction="never" />
 </menu>

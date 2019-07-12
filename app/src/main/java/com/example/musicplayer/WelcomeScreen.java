@@ -159,11 +159,13 @@ public class WelcomeScreen extends AppCompatActivity {
             int artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
             int location = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
             int duration = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
+            int i = 0;
             SongLibrary.cursorCount = cursor.getCount();
             do {
-                Song song = new Song(cursor.getString(title),cursor.getString(artist),cursor.getString(duration),cursor.getString(location));
+                Song song = new Song(cursor.getString(title),cursor.getString(artist),cursor.getString(duration),cursor.getString(location),i);
                 SongLibrary.songs.add(song);
                 SongLibrary.originals.add(song);
+                i++;
                 if(SongLibrary.songs.size() == SongLibrary.cursorCount)
                     break;
             } while (cursor.moveToNext());

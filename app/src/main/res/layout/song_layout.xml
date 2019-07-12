@@ -3,6 +3,7 @@
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_gravity="center_vertical"
+    android:background="@android:color/white"
     android:padding="3dp">
 
     <ImageView
@@ -46,7 +47,7 @@
         android:layout_marginEnd="100dp"
         android:singleLine="true"
         android:textColor="@android:color/darker_gray"
-        android:textSize="12sp"
+        android:textSize="13sp"
         android:text="SONG ARTIST" />
 
         <TextView
@@ -57,7 +58,7 @@
             android:layout_marginBottom="10dp"
             android:layout_alignParentEnd="true"
             android:textColor="@android:color/darker_gray"
-            android:textSize="12sp"
+            android:textSize="13sp"
             android:text="SONG DURATION" />
     </RelativeLayout>
     </LinearLayout>

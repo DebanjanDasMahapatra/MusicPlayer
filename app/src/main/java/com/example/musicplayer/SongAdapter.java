@@ -45,6 +45,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
         byte[] albumArt = retriever.getEmbeddedPicture();
         if(albumArt != null)
             viewHolder.songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
+        else
+            viewHolder.songLogo.setImageResource(R.drawable.mp_logo);
         int duration = Integer.parseInt(song.get(i).getSongDuration())/1000;
         int mins = duration/60;
         int secs = duration%60;
@@ -53,7 +55,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SongLibrary.currentlyPlaying = pos;
+                SongLibrary.currentlyPlaying = song.get(pos).getActualPosition();
                 MainActivity.started = false;
             }
         });

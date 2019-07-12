@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
     RelativeLayout collapsed_view;
     SlidingUpPanelLayout sliding_layout;
     MediaPlayer mp = new MediaPlayer();
-    ImageView play_or_pause, play_or_pause_mini, repeater;
+    ImageView play_or_pause, play_or_pause_mini, repeater, songLogo;
     static int askedPos;
     SeekBar seekBar;
     TextView current, end, title, title2;
@@ -65,6 +65,7 @@ public class MainActivity extends AppCompatActivity {
         play_or_pause = findViewById(R.id.play_or_pause);
         play_or_pause_mini = findViewById(R.id.c_play_or_pause);
         repeater = findViewById(R.id.repeat);
+        songLogo = findViewById(R.id.songImage);
         seekBar = findViewById(R.id.seekBar);
         askedPos = getSharedPreferences(getResources().getString(R.string.channel_name),MODE_PRIVATE).getInt(ID,0);
         SongLibrary.currentlyPlaying = askedPos;
@@ -149,20 +150,20 @@ public class MainActivity extends AppCompatActivity {
         mp.reset();
         mp = new MediaPlayer();
         title = findViewById(R.id.songTitle);
-        title.setText(SongLibrary.songs.get(asked).getSongTitle());
+        title.setText(SongLibrary.originals.get(asked).getSongTitle());
         title.setSelected(true);
         title2 = findViewById(R.id.c_song_title);
-        title2.setText(SongLibrary.songs.get(asked).getSongTitle());
-        ((TextView) findViewById(R.id.songArtist)).setText(SongLibrary.songs.get(asked).getSongArtist());
-        ((TextView) findViewById(R.id.c_song_artist)).setText(SongLibrary.songs.get(asked).getSongArtist());
+        title2.setText(SongLibrary.originals.get(asked).getSongTitle());
+        ((TextView) findViewById(R.id.songArtist)).setText(SongLibrary.originals.get(asked).getSongArtist());
+        ((TextView) findViewById(R.id.c_song_artist)).setText(SongLibrary.originals.get(asked).getSongArtist());
         current = findViewById(R.id.currentDuration);
         end = findViewById(R.id.endDuration);
         /*mBuilder = null;
         if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
             mBuilder = new NotificationCompat.Builder(MainActivity.this,channel.getId())
                     .setSmallIcon(R.drawable.mp_logo)
-                    .setContentTitle(SongLibrary.songs.get(asked).getSongTitle())
-                    .setContentText(SongLibrary.songs.get(asked).getSongArtist())
+                    .setContentTitle(SongLibrary.originals.get(asked).getSongTitle())
+                    .setContentText(SongLibrary.originals.get(asked).getSongArtist())
                     .setPriority(NotificationCompat.PRIORITY_DEFAULT)
                     .setOngoing(true);
         }
@@ -186,7 +187,6 @@ public class MainActivity extends AppCompatActivity {
     }*/
 
     public void initiateSeekBar() {
-        end.setText(getTimeFromString(mp.getDuration()));
         seekBar.setMax(mp.getDuration());
         seekBar();
     }
@@ -194,8 +194,9 @@ public class MainActivity extends AppCompatActivity {
     public void playSong(int asked) {
         if(SongLibrary.isPlaying >= 1) {
             try {
-                mp.setDataSource(SongLibrary.songs.get(asked).getSongLocation());//Write your location here
+                mp.setDataSource(SongLibrary.originals.get(asked).getSongLocation());//Write your location here
                 mp.prepare();
+                end.setText(getTimeFromString(mp.getDuration()));
                 if(SongLibrary.isPlaying == 1)
                     SongLibrary.isPlaying = 2;
                 else {
@@ -203,12 +204,12 @@ public class MainActivity extends AppCompatActivity {
                     editor.putInt(ID,SongLibrary.currentlyPlaying);
                     editor.apply();
                     mp.start();
-                    ((ImageView) findViewById(R.id.songImage)).setImageResource(R.drawable.mp_logo);
+                    songLogo.setImageResource(R.drawable.mp_logo);
                     MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-                    retriever.setDataSource(SongLibrary.songs.get(asked).getSongLocation());
+                    retriever.setDataSource(SongLibrary.originals.get(asked).getSongLocation());
                     byte[] albumArt = retriever.getEmbeddedPicture();
                     if(albumArt.length > 0)
-                        ((ImageView) findViewById(R.id.songImage)).setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
+                        songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
                     mp.setLooping(SongLibrary.isLoopOn);
                 }
                 play_or_pause.setImageResource(R.drawable.pause);
@@ -250,7 +251,7 @@ public class MainActivity extends AppCompatActivity {
                         play_or_pause.setImageResource(R.drawable.play);
                     } else if (!mp.isPlaying()) {
                         play_or_pause.setImageResource(R.drawable.play);
-                        if (askedPos + 1 < SongLibrary.songs.size() && SongLibrary.isPlaying == 2) {
+                        if (askedPos + 1 < SongLibrary.originals.size() && SongLibrary.isPlaying == 2) {
                             initiateMusicPlayer(askedPos + 1);
                             askedPos++;
                             SongLibrary.currentlyPlaying++;
@@ -300,7 +301,7 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case R.id.next:
             case R.id.c_next:
-                if(askedPos+1 < SongLibrary.songs.size()){
+                if(askedPos+1 < SongLibrary.originals.size()){
                     initiateMusicPlayer(askedPos+1);
                     askedPos++;
                     SongLibrary.currentlyPlaying++;

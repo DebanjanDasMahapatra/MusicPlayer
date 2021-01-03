@@ -7,9 +7,6 @@
     android:orientation="vertical"
     tools:context=".WelcomeScreen">
 
-    <!-- The primary full-screen view. This can be replaced with whatever view
-         is needed to present your content, e.g. VideoView, SurfaceView,
-         TextureView, etc. -->
     <ImageView
         android:id="@+id/fullscreen_content"
         android:layout_width="300dp"
@@ -21,14 +18,6 @@
         android:src="@drawable/mp_logo"
         android:text="@string/dummy_content" />
 
-    <ProgressBar
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:id="@+id/progressBar"
-        android:layout_marginStart="20dp"
-        android:layout_marginEnd="20dp"
-        android:layout_marginTop="10dp"/>
-
     <TextView
         android:id="@+id/main_welcome_text"
         android:layout_width="match_parent"
@@ -36,11 +25,8 @@
         android:gravity="center"
         android:keepScreenOn="true"
         android:layout_marginTop="20dp"
-        android:textColor="@android:drawable/screen_background_light_transparent"
+        android:textColor="@android:color/white"
         android:text="@string/dummy_content"
         android:textSize="30sp"/>
-
-    <!-- This FrameLayout insets its children based on system windows using
-         android:fitsSystemWindows. -->
 
 </LinearLayout>

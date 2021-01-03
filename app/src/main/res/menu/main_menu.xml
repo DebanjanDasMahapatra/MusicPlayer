@@ -8,11 +8,8 @@
         app:actionViewClass="androidx.appcompat.widget.SearchView"
         app:showAsAction="ifRoom|collapseActionView" />
     <item
-        android:id="@+id/change_theme"
-        android:title="@string/theme_text"
-        app:showAsAction="never" />
-    <item
         android:id="@+id/app_info"
         android:title="@string/info_text"
-        app:showAsAction="never" />
+        android:icon="@drawable/info"
+        app:showAsAction="always" />
 </menu>

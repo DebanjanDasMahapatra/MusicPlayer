@@ -3,12 +3,12 @@
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_gravity="center_vertical"
-    android:background="@android:color/white"
+    android:background="@android:color/transparent"
     android:padding="3dp">
 
     <ImageView
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
         android:src="@drawable/mp_logo"
         android:contentDescription="@string/app_name"
         android:id="@+id/songLogo"
@@ -20,45 +20,48 @@
         android:orientation="vertical"
         android:layout_gravity="center_vertical">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/songTitleL"
-        android:text="SONG TITLE"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="10dp"
-        android:textColor="@android:color/black"
-        android:textSize="18sp"
-        android:singleLine="true"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/songTitleL"
+            android:fontFamily="@font/mulu_regular"
+            android:text="SONG TITLE"
+            android:textColor="@android:color/white"
+            android:layout_marginStart="10dp"
+            android:layout_marginEnd="5dp"
+            android:layout_marginTop="3dp"
+            android:textSize="16sp"
+            android:singleLine="true"/>
 
-    <RelativeLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginStart="10dp"
-        android:layout_marginTop="5dp"
-        android:layout_marginEnd="10dp">
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:layout_marginStart="10dp"
+            android:layout_marginTop="3dp"
+            android:layout_marginEnd="10dp">
 
-    <TextView
-        android:id="@+id/songArtistL"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginEnd="100dp"
-        android:singleLine="true"
-        android:textColor="@android:color/darker_gray"
-        android:textSize="13sp"
-        android:text="SONG ARTIST" />
+        <TextView
+            android:id="@+id/songArtistL"
+            android:fontFamily="@font/mulu_regular"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="100dp"
+            android:singleLine="true"
+            android:textColor="@android:color/darker_gray"
+            android:textSize="12sp"
+            android:text="SONG ARTIST" />
 
         <TextView
             android:id="@+id/songDurationL"
+            android:fontFamily="@font/mulu_regular"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginStart="10dp"
             android:layout_marginBottom="10dp"
             android:layout_alignParentEnd="true"
             android:textColor="@android:color/darker_gray"
-            android:textSize="13sp"
+            android:textSize="12sp"
             android:text="SONG DURATION" />
     </RelativeLayout>
     </LinearLayout>

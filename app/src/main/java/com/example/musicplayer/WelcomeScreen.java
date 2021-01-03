@@ -8,6 +8,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.view.View;
 import android.widget.Toast;
@@ -163,6 +164,16 @@ public class WelcomeScreen extends AppCompatActivity {
     }
 
     private void proceedFurther() {
-        startActivity(new Intent(WelcomeScreen.this, SongPlayer.class));
+        new CountDownTimer(3000,1000) {
+            @Override
+            public void onTick(long l) {
+
+            }
+
+            @Override
+            public void onFinish() {
+                startActivity(new Intent(WelcomeScreen.this, SongPlayer.class));
+            }
+        }.start();
     }
 }

@@ -13,10 +13,6 @@ import androidx.core.app.NotificationCompat;
 
 public class Singing extends Service {
 
-//    public static final String ACTION_PLAY = "com.example.action.PLAY";
-//    public static final String ACTION_PAUSE = "com.example.action.PAUSE";
-//    public static final String ACTION_RESUME = "com.example.action.PAUSE";
-//    public static final String ACTION_INIT = "com.example.action.INIT";
     public static MediaPlayer mediaPlayer = null;
     public static int currentSongIndex = -1;
 
@@ -28,31 +24,12 @@ public class Singing extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        if (Objects.equals(intent.getAction(), ACTION_INIT)) {
-//            mediaPlayer = new MediaPlayer();
-//            mediaPlayer.setOnPreparedListener(this);
-//            mediaPlayer.setOnErrorListener(this);
-//        }
-//        if (Objects.equals(intent.getAction(), ACTION_PLAY)) {
-//            try {
-//                mediaPlayer.setDataSource(intent.getStringExtra("LOCATION"));
-//                mediaPlayer.prepareAsync();
-//            } catch (IOException e) {
-//                e.printStackTrace();
-//            }
-//        }
-//        if (Objects.equals(intent.getAction(), ACTION_RESUME)) {
-//            mediaPlayer.start();
-//        }
-//        if (Objects.equals(intent.getAction(), ACTION_PAUSE)) {
-//            mediaPlayer.pause();
-//        }
         startForeground(intent);
         return super.onStartCommand(intent, flags, startId);
     }
 
     private void startForeground(Intent i) {
-        Intent notificationIntent = new Intent(Singing.this, SongPlayer.class);
+        Intent notificationIntent = new Intent(Singing.this, WelcomeScreen.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(Singing.this, 0,notificationIntent, 0);
         byte[] albumArt = i.getByteArrayExtra("ALBUM_ART");
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
@@ -65,22 +42,4 @@ public class Singing extends Service {
             mediaPlayer.start();
         }
     }
-
-    //    @Override
-//    public void onPrepared(MediaPlayer mediaPlayer) {
-//        mediaPlayer.start();
-//    }
-//
-//    @Override
-//    public boolean onError(MediaPlayer mediaPlayer, int i, int i1) {
-//        mediaPlayer.reset();
-//        return false;
-//    }
-//
-//    @Override
-//    public void onDestroy() {
-//        super.onDestroy();
-//        if (mediaPlayer != null)
-//            mediaPlayer.release();
-//    }
 }

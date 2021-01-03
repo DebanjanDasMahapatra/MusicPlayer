@@ -7,7 +7,7 @@
     android:orientation="vertical"
     app:umanoDragView="@id/dragView"
     android:id="@+id/slide_view"
-    android:background="@android:color/white"
+    android:background="@color/dark"
     android:gravity="bottom"
     tools:context=".SongPlayer">
 
@@ -21,9 +21,8 @@
             android:layout_height="wrap_content"
             app:title="@string/app_name"
             android:id="@+id/toolbar"
-            android:background="@color/colorPrimary"
+            android:background="@color/dark_bar"
             app:titleTextColor="@android:color/white"
-            android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
             android:textAlignment="center"/>
 
         <View
@@ -34,15 +33,15 @@
         <androidx.recyclerview.widget.RecyclerView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginEnd="10dp"
-            android:layout_marginStart="10dp"
+            android:paddingEnd="10dp"
+            android:paddingStart="10dp"
             android:scrollbarSize="10dp"
             android:scrollbars="vertical"
             android:scrollbarThumbVertical="@drawable/scroll_bar_thumb"
-            android:id="@+id/songList">
+            android:id="@+id/songList"/>
 
-        </androidx.recyclerview.widget.RecyclerView>
     </LinearLayout>
+
     <RelativeLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -55,6 +54,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@color/dark_bar"
+            android:layout_alignParentTop="true"
             android:id="@+id/collapsed_view">
 
             <TextView
@@ -64,10 +65,11 @@
                 android:layout_alignParentStart="true"
                 android:layout_alignParentTop="true"
                 android:singleLine="true"
-                android:textColor="@android:color/black"
                 android:layout_marginStart="10dp"
                 android:layout_marginTop="10dp"
                 android:layout_alignEnd="@+id/c_previous"
+                android:textColor="@android:color/white"
+                android:fontFamily="@font/mulu_regular"
                 android:layout_marginEnd="60dp"
                 android:textSize="20sp" />
 
@@ -78,11 +80,12 @@
                 android:layout_alignBottom="@+id/c_song_title"
                 android:layout_alignParentStart="true"
                 android:layout_marginTop="20dp"
-                android:layout_marginBottom="-25dp"
+                android:layout_marginBottom="-20dp"
                 android:singleLine="true"
                 android:textColor="@android:color/darker_gray"
                 android:layout_marginStart="10dp"
                 android:layout_alignEnd="@+id/c_previous"
+                android:fontFamily="@font/mulu_regular"
                 android:layout_marginEnd="60dp"
                 android:textSize="15sp" />
 
@@ -91,7 +94,7 @@
                 android:layout_height="50dp"
                 android:layout_marginTop="10dp"
                 android:padding="2dp"
-                android:src="@drawable/skip_previous_black"
+                android:src="@drawable/skip_previous"
                 android:contentDescription="@string/app_name"
                 android:id="@+id/c_previous"
                 android:layout_gravity="center_vertical"
@@ -107,7 +110,6 @@
                 android:contentDescription="@string/app_name"
                 android:src="@drawable/play"
                 android:id="@+id/c_play_or_pause"
-                android:background="@drawable/controls_big"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="70dp"
                 android:onClick="onClick"/>
@@ -122,7 +124,7 @@
                 android:padding="2dp"
                 android:layout_alignParentEnd="true"
                 android:layout_marginEnd="10dp"
-                android:src="@drawable/skip_next_black" />
+                android:src="@drawable/skip_next" />
 
         </RelativeLayout>
 
@@ -136,9 +138,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 app:title="@string/app_name"
-                android:background="@color/colorPrimary"
+                android:background="@color/dark_bar"
                 app:titleTextColor="@android:color/white"
-                android:theme="@style/Theme.AppCompat.Light.DarkActionBar"
                 android:padding="5dp"
                 android:textAlignment="center"/>
 
@@ -159,9 +160,10 @@
                 android:singleLine="true"
                 android:ellipsize="marquee"
                 android:marqueeRepeatLimit="marquee_forever"
+                android:fontFamily="@font/mulu_regular"
+                android:textColor="@android:color/white"
                 android:scrollHorizontally="true"
-                android:textSize="30sp"
-                android:textColor="@android:color/black"
+                android:textSize="25sp"
                 android:focusable="true"
                 android:focusableInTouchMode="true"
                 android:freezesText="true"/>
@@ -176,6 +178,7 @@
                 android:text="Song Artist"
                 android:textAlignment="center"
                 android:textColor="@android:color/darker_gray"
+                android:fontFamily="@font/mulu_regular"
                 android:singleLine="true"
                 android:textSize="20sp" />
 
@@ -201,9 +204,10 @@
                     android:layout_alignParentStart="true"
                     android:layout_marginTop="10dp"
                     android:layout_marginStart="20dp"
+                    android:textColor="@android:color/white"
+                    android:fontFamily="@font/mulu_regular"
                     android:text="curr"
                     android:textAlignment="center"
-                    android:textColor="@android:color/black"
                     android:textSize="18sp" />
 
                 <ImageView
@@ -223,9 +227,10 @@
                     android:layout_alignParentEnd="true"
                     android:layout_marginTop="10dp"
                     android:layout_marginEnd="20dp"
+                    android:textColor="@android:color/white"
+                    android:fontFamily="@font/mulu_regular"
                     android:text="end"
                     android:textAlignment="center"
-                    android:textColor="@android:color/black"
                     android:textSize="18sp" />
 
             </RelativeLayout>
@@ -249,7 +254,7 @@
                     android:layout_width="60dp"
                     android:layout_height="60dp"
                     android:padding="10dp"
-                    android:src="@drawable/skip_previous_black"
+                    android:src="@drawable/skip_previous"
                     android:contentDescription="@string/app_name"
                     android:id="@+id/previous"
                     android:layout_marginEnd="40dp"
@@ -264,7 +269,6 @@
                     android:src="@drawable/play"
                     android:id="@+id/play_or_pause"
                     android:layout_marginEnd="10dp"
-                    android:background="@drawable/controls_big"
                     android:layout_marginStart="10dp"
                     android:onClick="onClick"/>
 
@@ -273,7 +277,7 @@
                     android:layout_height="60dp"
                     android:padding="10dp"
                     android:contentDescription="@string/app_name"
-                    android:src="@drawable/skip_next_black"
+                    android:src="@drawable/skip_next"
                     android:id="@+id/next"
                     android:layout_marginStart="40dp"
                     android:layout_gravity="center_vertical"

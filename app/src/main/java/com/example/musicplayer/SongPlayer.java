@@ -1,9 +1,12 @@
 package com.example.musicplayer;
 
+import android.app.AlertDialog;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.app.SearchManager;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
@@ -16,6 +19,8 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -30,7 +35,10 @@ import java.util.ArrayList;
 import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SearchView;
+import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
+import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -47,16 +55,28 @@ public class SongPlayer extends AppCompatActivity {
     private Handler myHandler;
     NotificationManager manager;
     ImageView play_or_pause, play_or_pause_mini, repeater, songLogo, previous, next, previous2, next2;
-    boolean isPlaying = false, playPrevious = false, playNext = false;//, isWorking = false, isPaused = false;
+    boolean isPlaying = false, playPrevious = false, playNext = false;
     int requestedSongIndex = -1;
+    AlertDialog.Builder builder;
     
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_player);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
+        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         context = SongPlayer.this;
         myHandler = new Handler();
+        builder = new AlertDialog.Builder(context);
+        builder.setNeutralButton("CLOSE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        })
+                .setCancelable(false)
+                .setTitle("App Info")
+                .setMessage("Simple Music Player app for your locally stored music!\n\nFirst release on: June 2019\nLast updated: Jan 2021");
         loadSongs(new OnSongLoadComplete() {
             @Override
             public void onLoadCompleteSuccess(ArrayList<Song> songs) {
@@ -67,12 +87,12 @@ public class SongPlayer extends AppCompatActivity {
                 manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 if(Singing.mediaPlayer == null) {
                     Singing.mediaPlayer = new MediaPlayer();
-                    //isPaused = true;
                     if(songs.size() > 0) {
                         initializeSongInMediaPlayer(0,true,false);
                     }
-                } else
+                } else {
                     initializeFromBackground();
+                }
                 sliding_layout.addPanelSlideListener(new SlidingUpPanelLayout.PanelSlideListener() {
                     @Override
                     public void onPanelSlide(View panel, float slideOffset) {
@@ -117,7 +137,7 @@ public class SongPlayer extends AppCompatActivity {
 
             @Override
             public void onLoadCompleteFailure(String errorMessage) {
-                Toast.makeText(context,"Some error occurred: "+errorMessage,Toast.LENGTH_LONG).show();
+                Toast.makeText(context,"Error in LOADING method: "+errorMessage,Toast.LENGTH_LONG).show();
             }
         });
     }
@@ -159,39 +179,44 @@ public class SongPlayer extends AppCompatActivity {
                 updateSeekBar.run();
             }
         } catch (Exception e) {
-            Toast.makeText(context,"Some error occurred: "+e.toString(),Toast.LENGTH_LONG).show();
+            Toast.makeText(context,"Error in initializeSongInMediaPlayer() method: "+e.toString(),Toast.LENGTH_LONG).show();
         }
     }
 
     public void initializeFromBackground() {
-        int i = Singing.currentSongIndex;
-        title.setText(SongLibrary.songs.get(i).getSongTitle());
-        title2.setText(SongLibrary.songs.get(i).getSongTitle());
-        artist.setText(SongLibrary.songs.get(i).getSongArtist());
-        artist2.setText(SongLibrary.songs.get(i).getSongArtist());
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
-        byte[] albumArt = retriever.getEmbeddedPicture();
-        if(albumArt != null)
-            songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
-        else
-            songLogo.setImageResource(R.drawable.mp_logo);
-        seekBar.setMax(Singing.mediaPlayer.getDuration());
-        current.setText(getTimeString(Singing.mediaPlayer.getCurrentPosition()));
-        end.setText(getTimeString(Singing.mediaPlayer.getDuration()));
-        play_or_pause.setImageResource(R.drawable.pause);
-        play_or_pause_mini.setImageResource(R.drawable.pause);
-        isPlaying = true;
-        Singing.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-            @Override
-            public void onCompletion(MediaPlayer mediaPlayer) {
-                if(!(isPlaying && SongLibrary.songs.size() > Singing.currentSongIndex + 1))
-                    return;
-                mediaPlayer.reset();
-                initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true);
-            }
-        });
-        playMusic.run();
+        try {
+            int i = Singing.currentSongIndex;
+            title.setText(SongLibrary.songs.get(i).getSongTitle());
+            title2.setText(SongLibrary.songs.get(i).getSongTitle());
+            artist.setText(SongLibrary.songs.get(i).getSongArtist());
+            artist2.setText(SongLibrary.songs.get(i).getSongArtist());
+            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+            retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
+            byte[] albumArt = retriever.getEmbeddedPicture();
+            if(albumArt != null)
+                songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
+            else
+                songLogo.setImageResource(R.drawable.mp_logo);
+            seekBar.setMax(Singing.mediaPlayer.getDuration());
+            current.setText(getTimeString(Singing.mediaPlayer.getCurrentPosition()));
+            end.setText(getTimeString(Singing.mediaPlayer.getDuration()));
+            play_or_pause.setImageResource(R.drawable.pause);
+            play_or_pause_mini.setImageResource(R.drawable.pause);
+            isPlaying = true;
+            Singing.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
+                @Override
+                public void onCompletion(MediaPlayer mediaPlayer) {
+                    if(!(isPlaying && SongLibrary.songs.size() > Singing.currentSongIndex + 1))
+                        return;
+                    mediaPlayer.reset();
+                    initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true);
+                }
+            });
+            playMusic.run();
+            updateSeekBar.run();
+        } catch (Exception e) {
+            Toast.makeText(context,"Error in initializeFromBackground() method: "+e.toString(),Toast.LENGTH_LONG).show();
+        }
     }
 
     private Runnable updateSeekBar = new Runnable() {
@@ -199,20 +224,14 @@ public class SongPlayer extends AppCompatActivity {
         public void run() {
             seekBar.setProgress(Singing.mediaPlayer.getCurrentPosition());
             current.setText(getTimeString(Singing.mediaPlayer.getCurrentPosition()));
-            if(Singing.mediaPlayer.isPlaying())
+            if(isPlaying)
                 myHandler.postDelayed(updateSeekBar,100);
-//            else if(!isPlaying)
-//                isWorking = false;
         }
     };
 
     private Runnable playMusic = new Runnable() {
         @Override
         public void run() {
-//            if(isPaused && Singing.mediaPlayer.isPlaying()) {
-//                Singing.mediaPlayer.pause();
-//                isPlaying = false;
-//            }
             if (Singing.mediaPlayer != null && playPrevious && SongLibrary.songs.size() > Singing.currentSongIndex - 1) {
                 Singing.mediaPlayer.stop();
                 Singing.mediaPlayer.reset();
@@ -229,10 +248,6 @@ public class SongPlayer extends AppCompatActivity {
                 requestedSongIndex = -1;
                 initializeSongInMediaPlayer(Singing.currentSongIndex, false, isPlaying);
             }
-//            if (Singing.mediaPlayer != null && Singing.mediaPlayer.isPlaying() && isPlaying && !isWorking) {
-//                updateSeekBar.run();
-//                isWorking = true;
-//            }
             myHandler.postDelayed(playMusic, 100);
         }
     };
@@ -251,14 +266,12 @@ public class SongPlayer extends AppCompatActivity {
                 case R.id.c_play_or_pause:
                     if (Singing.mediaPlayer.isPlaying()) {
                         Singing.mediaPlayer.pause();
-//                        isPaused = true;
                         isPlaying = false;
                         Intent i = new Intent(context, Singing.class);
                         stopService(i);
                         play_or_pause.setImageResource(R.drawable.play);
                         play_or_pause_mini.setImageResource(R.drawable.play);
                     } else {
-//                        isPaused = false;
                         isPlaying = true;
                         updateSeekBar.run();
                         Intent i = new Intent(context, Singing.class);
@@ -292,16 +305,16 @@ public class SongPlayer extends AppCompatActivity {
                     break;
             }
         } catch (Exception e) {
-            Toast.makeText(context,"An error occurred: " + e.getMessage(),Toast.LENGTH_LONG).show();
+            Toast.makeText(context,"Error in onClick() method: "+e.toString(),Toast.LENGTH_LONG).show();
         }
     }
-    
+
     private void updateNotification() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(SongLibrary.songs.get(Singing.currentSongIndex).getSongLocation());
             byte[] albumArt = retriever.getEmbeddedPicture();
-            Intent notificationIntent = new Intent(context, SongPlayer.class);
+            Intent notificationIntent = new Intent(context, WelcomeScreen.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(context, 0,notificationIntent, 0);
             manager.notify(SongLibrary.BACKGROUND_ID,new NotificationCompat.Builder(context,SongLibrary.channel.getId())
                     .setSmallIcon(R.drawable.mp_logo)
@@ -314,10 +327,46 @@ public class SongPlayer extends AppCompatActivity {
     }
 
     @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.main_menu,menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.app_info:
+                builder.show();
+                break;
+            case R.id.action_search:
+                SearchView searchView = MenuItemCompat.getActionView(item).findViewById(item.getItemId());
+                SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
+                searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+                searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+                    @Override
+                    public boolean onQueryTextSubmit(String s) {
+                        return false;
+                    }
+
+                    @Override
+                    public boolean onQueryTextChange(String s) {
+                        songAdapter.getFilter().filter(s);
+                        return true;
+                    }
+                });
+        }
+        return true;
+    }
+
+    @Override
     public void onDestroy() {
         super.onDestroy();
-        if (Singing.mediaPlayer != null && !Singing.mediaPlayer.isPlaying())
-            Singing.mediaPlayer.release();
+        try {
+            if (Singing.mediaPlayer != null && !Singing.mediaPlayer.isPlaying())
+                Singing.mediaPlayer.release();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     boolean isUserClickedBackButton = false;
@@ -352,7 +401,7 @@ public class SongPlayer extends AppCompatActivity {
         expanded_view.setVisibility(View.INVISIBLE);
         sliding_layout = findViewById(R.id.slide_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        songAdapter = new SongAdapter(SongLibrary.songs,context, new OnSongClick() {
+        songAdapter = new SongAdapter(SongLibrary.originals, new OnSongClick() {
             @Override
             public void songClick(int clickedIndex) {
                 requestedSongIndex = clickedIndex;
@@ -405,7 +454,7 @@ public class SongPlayer extends AppCompatActivity {
             }
             loadComplete.onLoadCompleteSuccess(temp);
         } catch (Exception e) {
-            loadComplete.onLoadCompleteFailure(e.getMessage());
+            loadComplete.onLoadCompleteFailure(e.toString());
         }
     }
 }

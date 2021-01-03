@@ -3,24 +3,18 @@ package com.example.musicplayer;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
-import android.content.ContentResolver;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.CountDownTimer;
 import android.os.Handler;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
-import android.support.v4.app.ActivityCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.view.MotionEvent;
 import android.view.View;
-import android.widget.ProgressBar;
 import android.widget.Toast;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
 
 /**
  * An example full-screen activity that shows and hides the system UI (i.e.
@@ -47,9 +41,6 @@ public class WelcomeScreen extends AppCompatActivity {
     private final Handler mHideHandler = new Handler();
     private View mContentView;
     public static final int RUNTIME_PERMISSION_CODE = 7;
-    ContentResolver contentResolver;
-    Cursor cursor;
-    Uri uri;
     boolean permitted = true;
     private final Runnable mHidePart2Runnable = new Runnable() {
         @SuppressLint("InlinedApi")
@@ -85,15 +76,6 @@ public class WelcomeScreen extends AppCompatActivity {
      * system UI. This is to prevent the jarring behavior of controls going away
      * while interacting with activity UI.
      */
-    private final View.OnTouchListener mDelayHideTouchListener = new View.OnTouchListener() {
-        @Override
-        public boolean onTouch(View view, MotionEvent motionEvent) {
-            if (AUTO_HIDE) {
-                delayedHide(AUTO_HIDE_DELAY_MILLIS);
-            }
-            return false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -101,10 +83,9 @@ public class WelcomeScreen extends AppCompatActivity {
 
         setContentView(R.layout.activity_welcome_screen);
         AndroidRuntimePermission();
-        GetAllMediaMp3Files();
 
         if(ActivityCompat.checkSelfPermission(WelcomeScreen.this, Manifest.permission.READ_EXTERNAL_STORAGE) == PackageManager.PERMISSION_GRANTED)
-            GetAllMediaMp3Files();
+            proceedFurther();
         else if(!permitted)
             Toast.makeText(WelcomeScreen.this,"Grant Permission for Reading External Storage",Toast.LENGTH_SHORT).show();
 
@@ -142,50 +123,9 @@ public class WelcomeScreen extends AppCompatActivity {
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
     }
 
-    public void GetAllMediaMp3Files(){
-        contentResolver = WelcomeScreen.this.getContentResolver();
-        uri = MediaStore.Audio.Media.EXTERNAL_CONTENT_URI;
-        cursor = contentResolver.query(uri,null,null,null, MediaStore.Audio.Media.DEFAULT_SORT_ORDER);
-
-        if (cursor == null) {
-            Toast.makeText(WelcomeScreen.this,"Something Went Wrong.", Toast.LENGTH_LONG).show();
-            ((ProgressBar) findViewById(R.id.progressBar)).setVisibility(View.INVISIBLE);
-        } else if (!cursor.moveToFirst()) {
-            Toast.makeText(WelcomeScreen.this,"No Music Found on SD Card.", Toast.LENGTH_LONG).show();
-            ((ProgressBar) findViewById(R.id.progressBar)).setVisibility(View.INVISIBLE);
-        }
-        else {
-            int title = cursor.getColumnIndex(MediaStore.Audio.Media.TITLE);
-            int artist = cursor.getColumnIndex(MediaStore.Audio.Media.ARTIST);
-            int location = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
-            int duration = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
-            int i = 0;
-            SongLibrary.cursorCount = cursor.getCount();
-            do {
-                Song song = new Song(cursor.getString(title),cursor.getString(artist),cursor.getString(duration),cursor.getString(location),i);
-                SongLibrary.songs.add(song);
-                SongLibrary.originals.add(song);
-                i++;
-                if(SongLibrary.songs.size() == SongLibrary.cursorCount)
-                    break;
-            } while (cursor.moveToNext());
-            new CountDownTimer(1000, 10) {
-                @Override
-                public void onTick(long millisUntilFinished) {
-                }
-                @Override
-                public void onFinish() {
-                    ((ProgressBar) findViewById(R.id.progressBar)).setVisibility(View.INVISIBLE);
-                    startActivity(new Intent(WelcomeScreen.this,MainActivity.class));
-                }
-            }.start();
-
-        }
-    }
-
     public void AndroidRuntimePermission(){
         if(Build.VERSION.SDK_INT>=Build.VERSION_CODES.M){
-            if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE)!= PackageManager.PERMISSION_GRANTED){
+            if(checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
                 if(shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE)){
                     AlertDialog.Builder alert_builder = new AlertDialog.Builder(WelcomeScreen.this);
                     alert_builder.setMessage("External Storage Permission is Required.");
@@ -203,6 +143,8 @@ public class WelcomeScreen extends AppCompatActivity {
                 else {
                     ActivityCompat.requestPermissions(WelcomeScreen.this,new String[]{Manifest.permission.READ_EXTERNAL_STORAGE},RUNTIME_PERMISSION_CODE);
                 }
+            } else {
+                proceedFurther();
             }
         }
     }
@@ -210,14 +152,17 @@ public class WelcomeScreen extends AppCompatActivity {
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults){
         switch(requestCode){
-            case RUNTIME_PERMISSION_CODE:{
+            case RUNTIME_PERMISSION_CODE:
                 if(grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED){
-                    GetAllMediaMp3Files();
+                    proceedFurther();
                 }
                 else {
                     permitted = false;
                 }
-            }
         }
+    }
+
+    private void proceedFurther() {
+        startActivity(new Intent(WelcomeScreen.this, SongPlayer.class));
     }
 }

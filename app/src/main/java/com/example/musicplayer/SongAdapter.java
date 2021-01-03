@@ -1,12 +1,8 @@
 package com.example.musicplayer;
 
 import android.content.Context;
-import android.content.Intent;
 import android.graphics.BitmapFactory;
-import android.media.Image;
 import android.media.MediaMetadataRetriever;
-import android.support.annotation.NonNull;
-import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -17,15 +13,20 @@ import android.widget.TextView;
 import java.util.ArrayList;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
 public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> {
 
     private ArrayList<Song> song;
     private ArrayList<Song> orig;
     private Context context;
+    private OnSongClick onSongClick;
     
-    SongAdapter(ArrayList<Song> song, Context context) {
+    SongAdapter(ArrayList<Song> song, Context context, OnSongClick onSongClick) {
         this.song = song;
         this.context = context;
+        this.onSongClick = onSongClick;
     }
 
     @NonNull
@@ -54,11 +55,17 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
         int secs = duration%60;
         final int pos = i;
         viewHolder.duration.setText(String.format(Locale.getDefault(),"%02d:%02d",mins,secs));
+//        viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                SongLibrary.currentlyPlaying = song.get(pos).getActualPosition();
+//                MainActivity.started = false;
+//            }
+//        });
         viewHolder.itemView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
-                SongLibrary.currentlyPlaying = song.get(pos).getActualPosition();
-                MainActivity.started = false;
+            public void onClick(View view) {
+                onSongClick.songClick(pos);
             }
         });
     }

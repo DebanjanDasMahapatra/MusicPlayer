@@ -1,10 +1,13 @@
 package com.example.musicplayer;
 
+import android.app.NotificationChannel;
+
 import java.util.ArrayList;
 
 class SongLibrary {
-    static ArrayList<Song> songs = new ArrayList<>();
-    static ArrayList<Song> originals = new ArrayList<>();
-    static int cursorCount = 0, currentlyPlaying = 0, isPlaying = 0;
-    static boolean isLoopOn = false, darkTheme = false;
+    static ArrayList<Song> songs, originals;
+    static int cursorCount = 0;
+    static boolean darkTheme = false;
+    static NotificationChannel channel;
+    static final int BACKGROUND_ID = 1000;
 }

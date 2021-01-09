@@ -164,7 +164,7 @@ public class WelcomeScreen extends AppCompatActivity {
     }
 
     private void proceedFurther() {
-        new CountDownTimer(3000,1000) {
+        new CountDownTimer(1000,500) {
             @Override
             public void onTick(long l) {
 

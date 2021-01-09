@@ -86,7 +86,7 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
             protected void publishResults(CharSequence constraint, FilterResults results) {
                 orig = (ArrayList<Song>) results.values;
                 SongLibrary.originals = orig;
-                SongLibrary.cursorCount = SongLibrary.originals.size()/2;
+                SongLibrary.cursorCount = SongLibrary.originals.size();
                 notifyDataSetChanged();
             }
         };

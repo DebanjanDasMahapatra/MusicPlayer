@@ -10,6 +10,7 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.database.Cursor;
+import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
@@ -19,11 +20,11 @@ import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
 import android.provider.MediaStore;
+import android.util.DisplayMetrics;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
-import android.widget.LinearLayout;
 import android.widget.RelativeLayout;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -36,7 +37,6 @@ import java.util.Locale;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
-import androidx.appcompat.widget.Toolbar;
 import androidx.core.app.NotificationCompat;
 import androidx.core.view.MenuItemCompat;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -47,7 +47,7 @@ public class SongPlayer extends AppCompatActivity {
     Context context;
     RecyclerView recyclerView;
     SongAdapter songAdapter;
-    LinearLayout expanded_view;
+    RelativeLayout expanded_view;
     RelativeLayout collapsed_view;
     SlidingUpPanelLayout sliding_layout;
     SeekBar seekBar;
@@ -55,8 +55,7 @@ public class SongPlayer extends AppCompatActivity {
     private Handler myHandler;
     NotificationManager manager;
     ImageView play_or_pause, play_or_pause_mini, repeater, songLogo, previous, next, previous2, next2;
-    boolean isPlaying = false, playPrevious = false, playNext = false;
-    int requestedSongIndex = -1;
+    boolean isPlaying = false;
     AlertDialog.Builder builder;
     
     @Override
@@ -64,7 +63,6 @@ public class SongPlayer extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_player);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
-        setSupportActionBar((Toolbar) findViewById(R.id.toolbar));
         context = SongPlayer.this;
         myHandler = new Handler();
         builder = new AlertDialog.Builder(context);
@@ -110,12 +108,6 @@ public class SongPlayer extends AppCompatActivity {
                         }
                     }
                 });
-                sliding_layout.setFadeOnClickListener(new View.OnClickListener() {
-                    @Override
-                    public void onClick(View view) {
-                        sliding_layout.setPanelState(SlidingUpPanelLayout.PanelState.COLLAPSED);
-                    }
-                });
 
                 seekBar.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
                     @Override
@@ -149,11 +141,7 @@ public class SongPlayer extends AppCompatActivity {
         artist2.setText(SongLibrary.songs.get(i).getSongArtist());
         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
-        byte[] albumArt = retriever.getEmbeddedPicture();
-        if(albumArt != null)
-            songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
-        else
-            songLogo.setImageResource(R.drawable.mp_logo);
+        songLogo.setImageBitmap(getScaledImageBitmap(retriever.getEmbeddedPicture()));
         try {
             Singing.mediaPlayer.setDataSource(SongLibrary.songs.get(i).getSongLocation());
             Singing.mediaPlayer.prepare();
@@ -171,7 +159,6 @@ public class SongPlayer extends AppCompatActivity {
                         initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true);
                     }
                 });
-                playMusic.run();
             }
             if(shouldStartPlaying) {
                 Singing.mediaPlayer.start();
@@ -192,17 +179,15 @@ public class SongPlayer extends AppCompatActivity {
             artist2.setText(SongLibrary.songs.get(i).getSongArtist());
             MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
-            byte[] albumArt = retriever.getEmbeddedPicture();
-            if(albumArt != null)
-                songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt,0,albumArt.length));
-            else
-                songLogo.setImageResource(R.drawable.mp_logo);
+            songLogo.setImageBitmap(getScaledImageBitmap(retriever.getEmbeddedPicture()));
             seekBar.setMax(Singing.mediaPlayer.getDuration());
             current.setText(getTimeString(Singing.mediaPlayer.getCurrentPosition()));
             end.setText(getTimeString(Singing.mediaPlayer.getDuration()));
             play_or_pause.setImageResource(R.drawable.pause);
             play_or_pause_mini.setImageResource(R.drawable.pause);
             isPlaying = true;
+            if (Singing.mediaPlayer.isLooping())
+                repeater.setBackgroundResource(R.drawable.repeat_on);
             Singing.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
@@ -212,7 +197,6 @@ public class SongPlayer extends AppCompatActivity {
                     initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true);
                 }
             });
-            playMusic.run();
             updateSeekBar.run();
         } catch (Exception e) {
             Toast.makeText(context,"Error in initializeFromBackground() method: "+e.toString(),Toast.LENGTH_LONG).show();
@@ -226,29 +210,6 @@ public class SongPlayer extends AppCompatActivity {
             current.setText(getTimeString(Singing.mediaPlayer.getCurrentPosition()));
             if(isPlaying)
                 myHandler.postDelayed(updateSeekBar,100);
-        }
-    };
-
-    private Runnable playMusic = new Runnable() {
-        @Override
-        public void run() {
-            if (Singing.mediaPlayer != null && playPrevious && SongLibrary.songs.size() > Singing.currentSongIndex - 1) {
-                Singing.mediaPlayer.stop();
-                Singing.mediaPlayer.reset();
-                playPrevious = false;
-                initializeSongInMediaPlayer(--Singing.currentSongIndex, false, isPlaying);
-            } else if (Singing.mediaPlayer != null && playNext && SongLibrary.songs.size() > Singing.currentSongIndex + 1) {
-                Singing.mediaPlayer.stop();
-                Singing.mediaPlayer.reset();
-                playNext = false;
-                initializeSongInMediaPlayer(++Singing.currentSongIndex, false, isPlaying);
-            } else if (Singing.mediaPlayer != null && requestedSongIndex > -1 && SongLibrary.songs.size() > requestedSongIndex) {
-                Singing.mediaPlayer.reset();
-                Singing.currentSongIndex = requestedSongIndex;
-                requestedSongIndex = -1;
-                initializeSongInMediaPlayer(Singing.currentSongIndex, false, isPlaying);
-            }
-            myHandler.postDelayed(playMusic, 100);
         }
     };
 
@@ -276,7 +237,7 @@ public class SongPlayer extends AppCompatActivity {
                         updateSeekBar.run();
                         Intent i = new Intent(context, Singing.class);
                         i.putExtra("TITLE",SongLibrary.songs.get(Singing.currentSongIndex).getSongTitle());
-                        i.putExtra("ARTIST",SongLibrary.songs.get(Singing.currentSongIndex).getSongTitle());
+                        i.putExtra("ARTIST",SongLibrary.songs.get(Singing.currentSongIndex).getSongArtist());
                         i.putExtra("LOCATION",SongLibrary.songs.get(Singing.currentSongIndex).getSongLocation());
                         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                         retriever.setDataSource(SongLibrary.songs.get(Singing.currentSongIndex).getSongLocation());
@@ -289,19 +250,27 @@ public class SongPlayer extends AppCompatActivity {
                 case R.id.repeat:
                     if (Singing.mediaPlayer.isLooping()) {
                         Singing.mediaPlayer.setLooping(false);
-                        repeater.setBackgroundResource(R.drawable.controls);
+                        repeater.setBackgroundResource(R.drawable.repeat_off);
                     } else {
                         Singing.mediaPlayer.setLooping(true);
-                        repeater.setBackgroundResource(R.drawable.controls_active);
+                        repeater.setBackgroundResource(R.drawable.repeat_on);
                     }
                     break;
                 case R.id.previous:
                 case R.id.c_previous:
-                    playPrevious = true;
+                    if (Singing.mediaPlayer != null && SongLibrary.songs.size() > Singing.currentSongIndex - 1) {
+                        Singing.mediaPlayer.stop();
+                        Singing.mediaPlayer.reset();
+                        initializeSongInMediaPlayer(--Singing.currentSongIndex, false, isPlaying);
+                    }
                     break;
                 case R.id.next:
                 case R.id.c_next:
-                    playNext = true;
+                    if (Singing.mediaPlayer != null && SongLibrary.songs.size() > Singing.currentSongIndex + 1) {
+                        Singing.mediaPlayer.stop();
+                        Singing.mediaPlayer.reset();
+                        initializeSongInMediaPlayer(++Singing.currentSongIndex, false, isPlaying);
+                    }
                     break;
             }
         } catch (Exception e) {
@@ -394,6 +363,24 @@ public class SongPlayer extends AppCompatActivity {
         }
     }
 
+    private Bitmap getScaledImageBitmap(byte[] resource) {
+        if(resource == null)
+            return scaleImage(BitmapFactory.decodeResource(getResources(), R.drawable.mp_logo));
+        else
+            return scaleImage(BitmapFactory.decodeByteArray(resource, 0, resource.length));
+    }
+
+    private Bitmap scaleImage(Bitmap source) {
+        int imageWidth = source.getWidth();
+        int imageHeight = source.getHeight();
+        DisplayMetrics displayMetrics = new DisplayMetrics();
+        getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
+        int newWidth = displayMetrics.widthPixels;
+        float scaleFactor = (float)newWidth/(float)imageWidth;
+        int newHeight = (int)(imageHeight * scaleFactor);
+        return Bitmap.createScaledBitmap(source, newWidth, newHeight, true);
+    }
+
     public void initializeViews() {
         recyclerView = findViewById(R.id.songList);
         expanded_view = findViewById(R.id.expanded_view);
@@ -404,7 +391,11 @@ public class SongPlayer extends AppCompatActivity {
         songAdapter = new SongAdapter(SongLibrary.originals, new OnSongClick() {
             @Override
             public void songClick(int clickedIndex) {
-                requestedSongIndex = clickedIndex;
+                if (Singing.mediaPlayer != null && clickedIndex > -1 && SongLibrary.songs.size() > clickedIndex) {
+                    Singing.mediaPlayer.reset();
+                    Singing.currentSongIndex = clickedIndex;
+                    initializeSongInMediaPlayer(Singing.currentSongIndex, false, isPlaying);
+                }
             }
         });
         recyclerView.setAdapter(songAdapter);

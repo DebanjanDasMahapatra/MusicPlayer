@@ -1,6 +1,6 @@
 package com.example.musicplayer;
 
-class Song {
+public class Song {
     private String songTitle, songArtist, songDuration, songLocation;
     private int actualPosition;
 
@@ -12,23 +12,27 @@ class Song {
         this.actualPosition = actualPosition;
     }
 
-    String getSongTitle() {
+    public String getSongTitle() {
         return songTitle;
     }
 
-    String getSongArtist() {
+    public String getSongArtist() {
         return songArtist;
     }
 
-    String getSongDuration() {
+    public String getSongDuration() {
         return songDuration;
     }
 
-    String getSongLocation() {
+    public String getSongLocation() {
         return songLocation;
     }
 
-    int getActualPosition() {
+    public int getActualPosition() {
         return actualPosition;
+    }
+
+    public void setActualPosition(int actualPosition) {
+        this.actualPosition = actualPosition;
     }
 }

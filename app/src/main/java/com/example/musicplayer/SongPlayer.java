@@ -8,7 +8,6 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.ActivityInfo;
 import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
@@ -30,63 +29,61 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.example.musicplayer.ui.main.SectionsPagerAdapter;
+import com.google.android.material.tabs.TabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 
 import java.util.ArrayList;
 import java.util.Locale;
+import java.util.Objects;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.app.NotificationCompat;
 import androidx.core.view.MenuItemCompat;
-import androidx.recyclerview.widget.LinearLayoutManager;
-import androidx.recyclerview.widget.RecyclerView;
+import androidx.viewpager.widget.ViewPager;
 
 public class SongPlayer extends AppCompatActivity {
 
-    Context context;
-    RecyclerView recyclerView;
-    SongAdapter songAdapter;
     RelativeLayout expanded_view;
     RelativeLayout collapsed_view;
     SlidingUpPanelLayout sliding_layout;
+    Context context;
     SeekBar seekBar;
     TextView current, end, title, title2, artist, artist2;
     private Handler myHandler;
     NotificationManager manager;
     ImageView play_or_pause, play_or_pause_mini, repeater, songLogo, previous, next, previous2, next2;
-    boolean isPlaying = false;
+    public boolean isPlaying = false;
     AlertDialog.Builder builder;
-    
+    TabLayout tabs;
+    public SongAdapter songAdapter;
+    public PlaylistAdapter playlistAdapter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_player);
-        setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_PORTRAIT);
         context = SongPlayer.this;
         myHandler = new Handler();
-        builder = new AlertDialog.Builder(context);
-        builder.setNeutralButton("CLOSE", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int i) {
-                dialogInterface.dismiss();
-            }
-        })
-                .setCancelable(false)
-                .setTitle("App Info")
-                .setMessage("Simple Music Player app for your locally stored music!\n\nFirst release on: June 2019\nLast updated: Jan 2021");
         loadSongs(new OnSongLoadComplete() {
             @Override
             public void onLoadCompleteSuccess(ArrayList<Song> songs) {
-                SongLibrary.songs = songs;
+                String pln = SongLibrary.playListName;
+                SongLibrary.songs = pln.equals("") ? songs : Objects.requireNonNull(SongLibrary.playListSongs.get(pln));
                 SongLibrary.originals = songs;
                 SongLibrary.cursorCount = songs.size();
+                SectionsPagerAdapter sectionsPagerAdapter = new SectionsPagerAdapter(context, getSupportFragmentManager());
+                ViewPager viewPager = findViewById(R.id.view_pager);
+                viewPager.setAdapter(sectionsPagerAdapter);
+                tabs = findViewById(R.id.tabs);
+                tabs.setupWithViewPager(viewPager);
                 initializeViews();
                 manager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
                 if(Singing.mediaPlayer == null) {
                     Singing.mediaPlayer = new MediaPlayer();
-                    if(songs.size() > 0) {
-                        initializeSongInMediaPlayer(0,true,false);
+                    if((pln.equals("") && songs.size() > 0) || (!pln.equals("") && Objects.requireNonNull(SongLibrary.playListSongs.get(pln)).size() > 0)) {
+                        initializeSongInMediaPlayer(0, true, false, false);
                     }
                 } else {
                     initializeFromBackground();
@@ -134,7 +131,7 @@ public class SongPlayer extends AppCompatActivity {
         });
     }
 
-    private void initializeSongInMediaPlayer(int i, boolean isFirstTime, boolean shouldStartPlaying) {
+    public void initializeSongInMediaPlayer(int i, boolean isFirstTime, boolean shouldStartPlaying, boolean wasLooping) {
         title.setText(SongLibrary.songs.get(i).getSongTitle());
         title2.setText(SongLibrary.songs.get(i).getSongTitle());
         artist.setText(SongLibrary.songs.get(i).getSongArtist());
@@ -153,15 +150,24 @@ public class SongPlayer extends AppCompatActivity {
                 Singing.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                     @Override
                     public void onCompletion(MediaPlayer mediaPlayer) {
-                        if(!(isPlaying && SongLibrary.songs.size() > Singing.currentSongIndex + 1))
+                        if(mediaPlayer.isLooping())
                             return;
+                        if(!(isPlaying && SongLibrary.songs.size() > Singing.currentSongIndex + 1)) {
+                            isPlaying = false;
+                            Intent i = new Intent(context, Singing.class);
+                            stopService(i);
+                            play_or_pause.setImageResource(R.drawable.play);
+                            play_or_pause_mini.setImageResource(R.drawable.play);
+                            return;
+                        }
                         mediaPlayer.reset();
-                        initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true);
+                        initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true, false);
                     }
                 });
             }
             if(shouldStartPlaying) {
                 Singing.mediaPlayer.start();
+                Singing.mediaPlayer.setLooping(wasLooping);
                 updateNotification();
                 updateSeekBar.run();
             }
@@ -191,10 +197,18 @@ public class SongPlayer extends AppCompatActivity {
             Singing.mediaPlayer.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
                 @Override
                 public void onCompletion(MediaPlayer mediaPlayer) {
-                    if(!(isPlaying && SongLibrary.songs.size() > Singing.currentSongIndex + 1))
+                    if(mediaPlayer.isLooping())
                         return;
+                    if(!(isPlaying && SongLibrary.songs.size() > Singing.currentSongIndex + 1)) {
+                        isPlaying = false;
+                        Intent i = new Intent(context, Singing.class);
+                        stopService(i);
+                        play_or_pause.setImageResource(R.drawable.play);
+                        play_or_pause_mini.setImageResource(R.drawable.play);
+                        return;
+                    }
                     mediaPlayer.reset();
-                    initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true);
+                    initializeSongInMediaPlayer(++Singing.currentSongIndex, false, true, false);
                 }
             });
             updateSeekBar.run();
@@ -236,10 +250,10 @@ public class SongPlayer extends AppCompatActivity {
                         isPlaying = true;
                         updateSeekBar.run();
                         Intent i = new Intent(context, Singing.class);
-                        i.putExtra("TITLE",SongLibrary.songs.get(Singing.currentSongIndex).getSongTitle());
-                        i.putExtra("ARTIST",SongLibrary.songs.get(Singing.currentSongIndex).getSongArtist());
-                        i.putExtra("LOCATION",SongLibrary.songs.get(Singing.currentSongIndex).getSongLocation());
                         MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+                        i.putExtra("TITLE", SongLibrary.songs.get(Singing.currentSongIndex).getSongTitle());
+                        i.putExtra("ARTIST", SongLibrary.songs.get(Singing.currentSongIndex).getSongArtist());
+                        i.putExtra("LOCATION", SongLibrary.songs.get(Singing.currentSongIndex).getSongLocation());
                         retriever.setDataSource(SongLibrary.songs.get(Singing.currentSongIndex).getSongLocation());
                         i.putExtra("ALBUM_ART",retriever.getEmbeddedPicture());
                         startService(i);
@@ -259,17 +273,19 @@ public class SongPlayer extends AppCompatActivity {
                 case R.id.previous:
                 case R.id.c_previous:
                     if (Singing.mediaPlayer != null && SongLibrary.songs.size() > Singing.currentSongIndex - 1) {
+                        boolean wasLooping = Singing.mediaPlayer.isLooping();
                         Singing.mediaPlayer.stop();
                         Singing.mediaPlayer.reset();
-                        initializeSongInMediaPlayer(--Singing.currentSongIndex, false, isPlaying);
+                        initializeSongInMediaPlayer(--Singing.currentSongIndex, false, isPlaying, wasLooping);
                     }
                     break;
                 case R.id.next:
                 case R.id.c_next:
                     if (Singing.mediaPlayer != null && SongLibrary.songs.size() > Singing.currentSongIndex + 1) {
+                        boolean wasLooping = Singing.mediaPlayer.isLooping();
                         Singing.mediaPlayer.stop();
                         Singing.mediaPlayer.reset();
-                        initializeSongInMediaPlayer(++Singing.currentSongIndex, false, isPlaying);
+                        initializeSongInMediaPlayer(++Singing.currentSongIndex, false, isPlaying, wasLooping);
                     }
                     break;
             }
@@ -308,6 +324,8 @@ public class SongPlayer extends AppCompatActivity {
                 builder.show();
                 break;
             case R.id.action_search:
+                if(tabs.getSelectedTabPosition() != 0 || !SongLibrary.playListName.equals(""))
+                    return false;
                 SearchView searchView = MenuItemCompat.getActionView(item).findViewById(item.getItemId());
                 SearchManager searchManager = (SearchManager) getSystemService(SEARCH_SERVICE);
                 searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
@@ -331,8 +349,9 @@ public class SongPlayer extends AppCompatActivity {
     public void onDestroy() {
         super.onDestroy();
         try {
-            if (Singing.mediaPlayer != null && !Singing.mediaPlayer.isPlaying())
+            if (Singing.mediaPlayer != null && !Singing.mediaPlayer.isPlaying()) {
                 Singing.mediaPlayer.release();
+            }
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -382,23 +401,10 @@ public class SongPlayer extends AppCompatActivity {
     }
 
     public void initializeViews() {
-        recyclerView = findViewById(R.id.songList);
         expanded_view = findViewById(R.id.expanded_view);
         collapsed_view = findViewById(R.id.collapsed_view);
         expanded_view.setVisibility(View.INVISIBLE);
         sliding_layout = findViewById(R.id.slide_view);
-        recyclerView.setLayoutManager(new LinearLayoutManager(context));
-        songAdapter = new SongAdapter(SongLibrary.originals, new OnSongClick() {
-            @Override
-            public void songClick(int clickedIndex) {
-                if (Singing.mediaPlayer != null && clickedIndex > -1 && SongLibrary.songs.size() > clickedIndex) {
-                    Singing.mediaPlayer.reset();
-                    Singing.currentSongIndex = clickedIndex;
-                    initializeSongInMediaPlayer(Singing.currentSongIndex, false, isPlaying);
-                }
-            }
-        });
-        recyclerView.setAdapter(songAdapter);
         play_or_pause = findViewById(R.id.play_or_pause);
         repeater = findViewById(R.id.repeat);
         songLogo = findViewById(R.id.songImage);
@@ -414,6 +420,15 @@ public class SongPlayer extends AppCompatActivity {
         artist2 = findViewById(R.id.songArtist);
         current = findViewById(R.id.currentDuration);
         end = findViewById(R.id.endDuration);
+        builder = new AlertDialog.Builder(context, R.style.MyDialogTheme);
+        builder.setNeutralButton("CLOSE", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialogInterface, int i) {
+                dialogInterface.dismiss();
+            }
+        })
+                .setCancelable(false).setTitle("App Info")
+                .setMessage(getString(R.string.app_info));
     }
 
     public void loadSongs(OnSongLoadComplete loadComplete) {

@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent" android:layout_height="wrap_content"
     android:orientation="horizontal"
     android:layout_gravity="center_vertical"
-    android:background="@android:color/transparent"
+    android:background="?attr/selectableItemBackground"
     android:padding="3dp">
 
     <ImageView
@@ -20,18 +21,37 @@
         android:orientation="vertical"
         android:layout_gravity="center_vertical">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <RelativeLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/songTitleL"
-            android:fontFamily="@font/mulu_regular"
-            android:text="SONG TITLE"
-            android:textColor="@android:color/white"
+            android:orientation="horizontal"
             android:layout_marginStart="10dp"
-            android:layout_marginEnd="5dp"
-            android:layout_marginTop="3dp"
-            android:textSize="16sp"
-            android:singleLine="true"/>
+            android:layout_marginEnd="10dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/songTitleL"
+                android:fontFamily="@font/mulu_regular"
+                android:text="@string/default_song_title"
+                android:textColor="@android:color/white"
+                android:layout_marginStart="10dp"
+                android:layout_marginEnd="50dp"
+                android:layout_marginTop="3dp"
+                android:textSize="16sp"
+                android:singleLine="true"
+                tools:ignore="RelativeOverlap" />
+
+            <ImageView
+                android:layout_width="25dp"
+                android:layout_height="25dp"
+                android:src="@drawable/more"
+                android:id="@+id/songMenu"
+                android:contentDescription="@string/app_name"
+                android:layout_centerVertical="true"
+                android:layout_alignParentEnd="true"/>
+
+        </RelativeLayout>
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -41,28 +61,32 @@
             android:layout_marginTop="3dp"
             android:layout_marginEnd="10dp">
 
-        <TextView
-            android:id="@+id/songArtistL"
-            android:fontFamily="@font/mulu_regular"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginEnd="100dp"
-            android:singleLine="true"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp"
-            android:text="SONG ARTIST" />
+            <TextView
+                android:id="@+id/songArtistL"
+                android:fontFamily="@font/mulu_regular"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="100dp"
+                android:singleLine="true"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp"
+                android:text="@string/default_song_artist" />
 
-        <TextView
-            android:id="@+id/songDurationL"
-            android:fontFamily="@font/mulu_regular"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_marginStart="10dp"
-            android:layout_marginBottom="10dp"
-            android:layout_alignParentEnd="true"
-            android:textColor="@android:color/darker_gray"
-            android:textSize="12sp"
-            android:text="SONG DURATION" />
-    </RelativeLayout>
+            <TextView
+                android:id="@+id/songDurationL"
+                android:fontFamily="@font/mulu_regular"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="10dp"
+                android:layout_marginBottom="10dp"
+                android:layout_alignParentEnd="true"
+                android:textColor="@android:color/darker_gray"
+                android:textSize="12sp"
+                android:text="@string/default_time"
+                tools:ignore="RelativeOverlap" />
+
+        </RelativeLayout>
+
     </LinearLayout>
+
 </LinearLayout>

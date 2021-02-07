@@ -10,4 +10,20 @@
     <string name="theme_text">Switch Theme</string>
     <string name="info_text">App Info</string>
     <string name="search_text">Search</string>
+    <string name="tab1">ALL SONGS</string>
+    <string name="tab2">PLAYLISTS</string>
+    <string name="default_song_title">Song Title</string>
+    <string name="default_song_artist">Song Artist</string>
+    <string name="default_time">00:00</string>
+
+    <string name="db_name">MusicPlayer</string>
+    <string name="ps_table">PlaylistSongs</string>
+    <string name="ps_name">PlaylistName</string>
+    <string name="ps_location">SongLocation</string>
+    <string name="playlist_table">Playlists</string>
+    <string name="playlist_name">PlaylistName</string>
+    <string name="title_activity_main">MainActivity</string>
+    <string name="tab_text_1">ALL SONGS</string>
+    <string name="tab_text_2">PLAYLISTS</string>
+    <string name="app_info">"Simple Music Player app for your locally stored music!\n\nFirst release: June 2019\nLast updated: Feb 2021"</string>
 </resources>

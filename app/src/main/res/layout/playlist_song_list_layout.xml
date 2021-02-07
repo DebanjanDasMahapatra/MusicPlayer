@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.recyclerview.widget.RecyclerView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="20dp"
+    android:paddingStart="20dp"
+    android:paddingEnd="10dp"
+    android:scrollbarSize="5dp"
+    android:scrollbars="vertical"
+    android:scrollbarThumbVertical="@drawable/scroll_bar_thumb"
+    android:background="@color/dark"
+    android:id="@+id/playListSongList">
+
+</androidx.recyclerview.widget.RecyclerView>

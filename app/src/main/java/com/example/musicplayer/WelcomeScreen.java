@@ -164,16 +164,21 @@ public class WelcomeScreen extends AppCompatActivity {
     }
 
     private void proceedFurther() {
-        new CountDownTimer(1000,500) {
-            @Override
-            public void onTick(long l) {
+        try {
+            DatabaseHelper.openOrCreateDatabases(WelcomeScreen.this);
+            new CountDownTimer(1000,500) {
+                @Override
+                public void onTick(long l) {
 
-            }
+                }
 
-            @Override
-            public void onFinish() {
-                startActivity(new Intent(WelcomeScreen.this, SongPlayer.class));
-            }
-        }.start();
+                @Override
+                public void onFinish() {
+                    startActivity(new Intent(WelcomeScreen.this, SongPlayer.class));
+                }
+            }.start();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }

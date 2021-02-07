@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#008577</color>
-    <color name="colorPrimaryDark">#00574B</color>
+    <color name="colorPrimary">#2f2f2f</color>
+    <color name="colorPrimaryDark">#202020</color>
     <color name="colorAccent">#D81B60</color>
     <color name="seek_bar_background">#ffa500</color>
     <color name="seek_bar_progress">#f726ff</color>
@@ -12,5 +12,5 @@
     <color name="white">#FFFFFF</color>
     <color name="dark">#2f2f2f</color>
     <color name="dark_bar">#202020</color>
-    <color name="colorPrimaryLight">#02DAC3</color>
+    <color name="colorPrimaryLight">#FFFFFF</color>
 </resources>

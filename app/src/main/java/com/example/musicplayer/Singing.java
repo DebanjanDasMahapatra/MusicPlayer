@@ -7,6 +7,8 @@ import android.graphics.BitmapFactory;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.IBinder;
+import android.telephony.PhoneStateListener;
+import android.telephony.TelephonyManager;
 
 import androidx.annotation.Nullable;
 import androidx.core.app.NotificationCompat;
@@ -25,6 +27,19 @@ public class Singing extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         startForeground(intent);
+        TelephonyManager mgr = (TelephonyManager) getSystemService(TELEPHONY_SERVICE);
+        if(mgr != null)
+            mgr.listen(new PhoneStateListener() {
+                @Override public void onCallStateChanged(int state, String incomingNumber) {
+                    if (state == TelephonyManager.CALL_STATE_RINGING)
+                        mediaPlayer.pause();
+                    else if(state == TelephonyManager.CALL_STATE_IDLE)
+                        mediaPlayer.start();
+                    else if(state == TelephonyManager.CALL_STATE_OFFHOOK)
+                        mediaPlayer.pause();
+                    super.onCallStateChanged(state, incomingNumber);
+                }
+            }, PhoneStateListener.LISTEN_CALL_STATE);
         return super.onStartCommand(intent, flags, startId);
     }
 

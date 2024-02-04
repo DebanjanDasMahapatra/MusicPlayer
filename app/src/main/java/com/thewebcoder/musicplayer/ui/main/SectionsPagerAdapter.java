@@ -1,14 +1,13 @@
-package com.example.musicplayer.ui.main;
+package com.thewebcoder.musicplayer.ui.main;
 
 import android.content.Context;
-
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentPagerAdapter;
 
-import static com.example.musicplayer.SongLibrary.TAB_TITLES;
+import static com.thewebcoder.musicplayer.SongLibrary.TAB_TITLES;
 
 /**
  * A [FragmentPagerAdapter] that returns a fragment corresponding to

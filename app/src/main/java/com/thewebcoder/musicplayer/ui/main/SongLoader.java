@@ -3,6 +3,8 @@ package com.thewebcoder.musicplayer.ui.main;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.media.MediaMetadataRetriever;
 import android.net.Uri;
 import android.os.Handler;
@@ -48,11 +50,14 @@ public class SongLoader implements Callable<ArrayList<Song>> {
             int location = cursor.getColumnIndex(MediaStore.Audio.Media.DATA);
             int duration = cursor.getColumnIndex(MediaStore.Audio.Media.DURATION);
             int position = 0;
+            byte[] albumArt;
             loadComplete.onLoadStart(cursor.getCount());
             do {
                 try {
                     retriever.setDataSource(cursor.getString(location));
-                    Song song = new Song(cursor.getString(title), cursor.getString(artist), cursor.getString(duration), cursor.getString(location), position);
+                    albumArt = retriever.getEmbeddedPicture();
+                    Bitmap imageBitmap = albumArt != null ? BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length) : null;
+                    Song song = new Song(cursor.getString(title), cursor.getString(artist), cursor.getString(duration), cursor.getString(location), position, imageBitmap);
                     songList.add(song);
                     position++;
                     loadComplete.onLoading(position);

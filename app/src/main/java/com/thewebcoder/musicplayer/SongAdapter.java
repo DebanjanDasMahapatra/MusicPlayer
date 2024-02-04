@@ -3,10 +3,8 @@ package com.thewebcoder.musicplayer;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
-import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
-import android.media.MediaMetadataRetriever;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -26,7 +24,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
     private final OnSongClick onSongClick;
     private final Context context;
     private final AlertDialog.Builder builder;
-    private final MediaMetadataRetriever retriever;
     private ArrayList<Song> original;
     private Snackbar snackbar;
 
@@ -35,7 +32,6 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
         this.original = song;
         this.onSongClick = onSongClick;
         songPlayer = ((SongPlayer) Objects.requireNonNull(activity));
-        this.retriever = new MediaMetadataRetriever();
         builder = new AlertDialog.Builder(context, R.style.MyDialogTheme);
         builder.setTitle("Select Playlist Name").setNeutralButton("CANCEL", (dialogInterface, i) -> dialogInterface.dismiss()).setCancelable(false);
     }
@@ -50,11 +46,8 @@ public class SongAdapter extends RecyclerView.Adapter<SongAdapter.MyViewHolder> 
     public void onBindViewHolder(@NonNull final SongAdapter.MyViewHolder viewHolder, int i) {
         viewHolder.title.setText(original.get(i).getSongTitle());
         viewHolder.artist.setText(original.get(i).getSongArtist());
-        byte[] albumArt;
-        retriever.setDataSource(original.get(i).getSongLocation());
-        albumArt = retriever.getEmbeddedPicture();
-        if (albumArt != null)
-            viewHolder.songLogo.setImageBitmap(BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length));
+        if (original.get(i).getImageBitmap() != null)
+            viewHolder.songLogo.setImageBitmap(original.get(i).getImageBitmap());
         else viewHolder.songLogo.setImageResource(R.drawable.mp_logo);
         int duration = Integer.parseInt(original.get(i).getSongDuration()) / 1000;
         int minutes = duration / 60;

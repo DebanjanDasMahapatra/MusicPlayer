@@ -8,7 +8,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.os.Build;
 import android.os.Bundle;
@@ -47,13 +46,11 @@ public class SongPlayer extends AppCompatActivity {
     private TabLayout tabs;
     private boolean isUserClickedBackButton = false;
     private Handler myHandler;
-    private MediaMetadataRetriever retriever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_player);
-        retriever = new MediaMetadataRetriever();
         context = SongPlayer.this;
         myHandler = new Handler();
         String pln = SongLibrary.playListName;
@@ -115,8 +112,7 @@ public class SongPlayer extends AppCompatActivity {
         title2.setText(SongLibrary.songs.get(i).getSongTitle());
         artist.setText(SongLibrary.songs.get(i).getSongArtist());
         artist2.setText(SongLibrary.songs.get(i).getSongArtist());
-        retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
-        songLogo.setImageBitmap(getScaledImageBitmap(retriever.getEmbeddedPicture()));
+        songLogo.setImageBitmap(getScaledImageBitmap(SongLibrary.songs.get(i).getImageBitmap()));
         try {
             SongPlayingService.mediaPlayer.setDataSource(SongLibrary.songs.get(i).getSongLocation());
             SongPlayingService.mediaPlayer.prepare();
@@ -157,8 +153,7 @@ public class SongPlayer extends AppCompatActivity {
             title2.setText(SongLibrary.songs.get(i).getSongTitle());
             artist.setText(SongLibrary.songs.get(i).getSongArtist());
             artist2.setText(SongLibrary.songs.get(i).getSongArtist());
-            retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
-            songLogo.setImageBitmap(getScaledImageBitmap(retriever.getEmbeddedPicture()));
+            songLogo.setImageBitmap(SongLibrary.songs.get(i).getImageBitmap());
             seekBar.setMax(SongPlayingService.mediaPlayer.getDuration());
             current.setText(getTimeString(SongPlayingService.mediaPlayer.getCurrentPosition()));
             end.setText(getTimeString(SongPlayingService.mediaPlayer.getDuration()));
@@ -211,8 +206,7 @@ public class SongPlayer extends AppCompatActivity {
                         i.putExtra("TITLE", SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongTitle());
                         i.putExtra("ARTIST", SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongArtist());
                         i.putExtra("LOCATION", SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongLocation());
-                        retriever.setDataSource(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongLocation());
-                        i.putExtra("ALBUM_ART", retriever.getEmbeddedPicture());
+                        i.putExtra("ALBUM_ART", SongLibrary.songs.get(SongPlayingService.currentSongIndex).getImageBitmap());
                         startService(i);
                         play_or_pause.setImageResource(R.drawable.pause);
                         play_or_pause_mini.setImageResource(R.drawable.pause);
@@ -252,25 +246,19 @@ public class SongPlayer extends AppCompatActivity {
     }
 
     private void updateNotification() {
-        retriever.setDataSource(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongLocation());
-        byte[] albumArt = retriever.getEmbeddedPicture();
+        Bitmap albumArt = SongLibrary.songs.get(SongPlayingService.currentSongIndex).getImageBitmap();
         Intent notificationIntent = new Intent(context, WelcomeScreen.class);
+        PendingIntent playOrPauseIntent = PendingIntent.getBroadcast(this, 0, new Intent(SongLibrary.ACTION_MUSIC_PLAY_OR_PAUSE), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
+        PendingIntent repeatIntent = PendingIntent.getBroadcast(this, 0, new Intent(SongLibrary.ACTION_MUSIC_REPEAT), PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
-        manager.notify(SongLibrary.BACKGROUND_ID, new NotificationCompat.Builder(context, SongLibrary.channel.getId()).setSmallIcon(R.drawable.mp_logo).setContentIntent(pendingIntent).setLargeIcon(albumArt != null ? BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length) : BitmapFactory.decodeResource(getResources(), R.drawable.mp_logo)).setContentTitle(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongTitle()).setContentText(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongArtist()).setOngoing(true).build());
+        manager.notify(SongLibrary.BACKGROUND_ID, new NotificationCompat.Builder(context, SongLibrary.channel.getId()).setVisibility(NotificationCompat.VISIBILITY_PUBLIC).setSmallIcon(R.drawable.mp_logo).setContentIntent(pendingIntent).setLargeIcon(albumArt != null ? albumArt : BitmapFactory.decodeResource(getResources(), R.drawable.mp_logo)).addAction(R.drawable.play, "Play or Pause", playOrPauseIntent).addAction(R.drawable.repeat_on, "Repeat", repeatIntent).setContentTitle(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongTitle()).setContentText(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongArtist()).setOngoing(true).build());
     }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
-    }    private final Runnable updateSeekBar = new Runnable() {
-        @Override
-        public void run() {
-            seekBar.setProgress(SongPlayingService.mediaPlayer.getCurrentPosition());
-            current.setText(getTimeString(SongPlayingService.mediaPlayer.getCurrentPosition()));
-            if (isPlaying) myHandler.postDelayed(updateSeekBar, 100);
-        }
-    };
+    }
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -297,7 +285,14 @@ public class SongPlayer extends AppCompatActivity {
                 });
         }
         return true;
-    }
+    }    private final Runnable updateSeekBar = new Runnable() {
+        @Override
+        public void run() {
+            seekBar.setProgress(SongPlayingService.mediaPlayer.getCurrentPosition());
+            current.setText(getTimeString(SongPlayingService.mediaPlayer.getCurrentPosition()));
+            if (isPlaying) myHandler.postDelayed(updateSeekBar, 100);
+        }
+    };
 
     @Override
     public void onDestroy() {
@@ -336,12 +331,10 @@ public class SongPlayer extends AppCompatActivity {
         }
     }
 
-    private Bitmap getScaledImageBitmap(byte[] resource) {
-        if (resource == null) return scaleImage(BitmapFactory.decodeResource(getResources(), R.drawable.mp_logo));
-        else return scaleImage(BitmapFactory.decodeByteArray(resource, 0, resource.length));
-    }
-
-    private Bitmap scaleImage(Bitmap source) {
+    private Bitmap getScaledImageBitmap(Bitmap source) {
+        if (source == null) {
+            source = BitmapFactory.decodeResource(getResources(), R.drawable.mp_logo);
+        }
         int imageWidth = source.getWidth();
         int imageHeight = source.getHeight();
         DisplayMetrics displayMetrics = new DisplayMetrics();
@@ -375,5 +368,7 @@ public class SongPlayer extends AppCompatActivity {
         builder = new AlertDialog.Builder(context, R.style.MyDialogTheme);
         builder.setNeutralButton("CLOSE", (dialogInterface, i) -> dialogInterface.dismiss()).setCancelable(false).setTitle("App Info").setMessage(getString(R.string.app_info));
     }
+
+
 
 }

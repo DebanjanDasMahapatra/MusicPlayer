@@ -28,7 +28,6 @@ import com.google.android.material.tabs.TabLayout;
 import com.sothree.slidinguppanel.SlidingUpPanelLayout;
 import com.thewebcoder.musicplayer.ui.main.SectionsPagerAdapter;
 
-import java.io.IOException;
 import java.util.Locale;
 import java.util.Objects;
 
@@ -37,23 +36,24 @@ public class SongPlayer extends AppCompatActivity {
     public boolean isPlaying = false;
     public SongAdapter songAdapter;
     public PlaylistAdapter playlistAdapter;
-    RelativeLayout expanded_view;
-    RelativeLayout collapsed_view;
-    SlidingUpPanelLayout sliding_layout;
-    Context context;
-    SeekBar seekBar;
-    TextView current, end, title, title2, artist, artist2;
-    NotificationManager manager;
-    ImageView play_or_pause, play_or_pause_mini, repeater, songLogo, previous, next, previous2, next2;
-    AlertDialog.Builder builder;
-    TabLayout tabs;
-    boolean isUserClickedBackButton = false;
+    private RelativeLayout expanded_view, collapsed_view;
+    private SlidingUpPanelLayout sliding_layout;
+    private Context context;
+    private SeekBar seekBar;
+    private TextView current, end, title, title2, artist, artist2;
+    private NotificationManager manager;
+    private ImageView play_or_pause, play_or_pause_mini, repeater, songLogo;
+    private AlertDialog.Builder builder;
+    private TabLayout tabs;
+    private boolean isUserClickedBackButton = false;
     private Handler myHandler;
+    private MediaMetadataRetriever retriever;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_song_player);
+        retriever = new MediaMetadataRetriever();
         context = SongPlayer.this;
         myHandler = new Handler();
         String pln = SongLibrary.playListName;
@@ -115,14 +115,8 @@ public class SongPlayer extends AppCompatActivity {
         title2.setText(SongLibrary.songs.get(i).getSongTitle());
         artist.setText(SongLibrary.songs.get(i).getSongArtist());
         artist2.setText(SongLibrary.songs.get(i).getSongArtist());
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
         songLogo.setImageBitmap(getScaledImageBitmap(retriever.getEmbeddedPicture()));
-        try {
-            retriever.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         try {
             SongPlayingService.mediaPlayer.setDataSource(SongLibrary.songs.get(i).getSongLocation());
             SongPlayingService.mediaPlayer.prepare();
@@ -163,14 +157,8 @@ public class SongPlayer extends AppCompatActivity {
             title2.setText(SongLibrary.songs.get(i).getSongTitle());
             artist.setText(SongLibrary.songs.get(i).getSongArtist());
             artist2.setText(SongLibrary.songs.get(i).getSongArtist());
-            MediaMetadataRetriever retriever = new MediaMetadataRetriever();
             retriever.setDataSource(SongLibrary.songs.get(i).getSongLocation());
             songLogo.setImageBitmap(getScaledImageBitmap(retriever.getEmbeddedPicture()));
-            try {
-                retriever.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
             seekBar.setMax(SongPlayingService.mediaPlayer.getDuration());
             current.setText(getTimeString(SongPlayingService.mediaPlayer.getCurrentPosition()));
             end.setText(getTimeString(SongPlayingService.mediaPlayer.getDuration()));
@@ -220,7 +208,6 @@ public class SongPlayer extends AppCompatActivity {
                         isPlaying = true;
                         updateSeekBar.run();
                         Intent i = new Intent(context, SongPlayingService.class);
-                        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
                         i.putExtra("TITLE", SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongTitle());
                         i.putExtra("ARTIST", SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongArtist());
                         i.putExtra("LOCATION", SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongLocation());
@@ -262,24 +249,11 @@ public class SongPlayer extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(context, "Error in onClick() method: " + e, Toast.LENGTH_LONG).show();
         }
-    }    private final Runnable updateSeekBar = new Runnable() {
-        @Override
-        public void run() {
-            seekBar.setProgress(SongPlayingService.mediaPlayer.getCurrentPosition());
-            current.setText(getTimeString(SongPlayingService.mediaPlayer.getCurrentPosition()));
-            if (isPlaying) myHandler.postDelayed(updateSeekBar, 100);
-        }
-    };
+    }
 
     private void updateNotification() {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
         retriever.setDataSource(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongLocation());
         byte[] albumArt = retriever.getEmbeddedPicture();
-        try {
-            retriever.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
         Intent notificationIntent = new Intent(context, WelcomeScreen.class);
         PendingIntent pendingIntent = PendingIntent.getActivity(context, 0, notificationIntent, PendingIntent.FLAG_MUTABLE);
         manager.notify(SongLibrary.BACKGROUND_ID, new NotificationCompat.Builder(context, SongLibrary.channel.getId()).setSmallIcon(R.drawable.mp_logo).setContentIntent(pendingIntent).setLargeIcon(albumArt != null ? BitmapFactory.decodeByteArray(albumArt, 0, albumArt.length) : BitmapFactory.decodeResource(getResources(), R.drawable.mp_logo)).setContentTitle(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongTitle()).setContentText(SongLibrary.songs.get(SongPlayingService.currentSongIndex).getSongArtist()).setOngoing(true).build());
@@ -289,7 +263,14 @@ public class SongPlayer extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.main_menu, menu);
         return true;
-    }
+    }    private final Runnable updateSeekBar = new Runnable() {
+        @Override
+        public void run() {
+            seekBar.setProgress(SongPlayingService.mediaPlayer.getCurrentPosition());
+            current.setText(getTimeString(SongPlayingService.mediaPlayer.getCurrentPosition()));
+            if (isPlaying) myHandler.postDelayed(updateSeekBar, 100);
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -384,21 +365,15 @@ public class SongPlayer extends AppCompatActivity {
         repeater = findViewById(R.id.repeat);
         songLogo = findViewById(R.id.songImage);
         seekBar = findViewById(R.id.seekBar);
-        previous = findViewById(R.id.previous);
-        next = findViewById(R.id.next);
         title = findViewById(R.id.songTitle);
         play_or_pause_mini = findViewById(R.id.c_play_or_pause);
-        previous2 = findViewById(R.id.c_previous);
-        next2 = findViewById(R.id.c_next);
         title2 = findViewById(R.id.c_song_title);
-        artist = findViewById(R.id.c_song_artist);
-        artist2 = findViewById(R.id.songArtist);
+        artist2 = findViewById(R.id.c_song_artist);
+        artist = findViewById(R.id.songArtist);
         current = findViewById(R.id.currentDuration);
         end = findViewById(R.id.endDuration);
         builder = new AlertDialog.Builder(context, R.style.MyDialogTheme);
         builder.setNeutralButton("CLOSE", (dialogInterface, i) -> dialogInterface.dismiss()).setCancelable(false).setTitle("App Info").setMessage(getString(R.string.app_info));
     }
-
-
 
 }

@@ -1,7 +1,7 @@
-package com.example.musicplayer;
+package com.thewebcoder.musicplayer;
 
 public class Song {
-    private String songTitle, songArtist, songDuration, songLocation;
+    private final String songTitle, songArtist, songDuration, songLocation;
     private int actualPosition;
 
     public Song(String songTitle, String songArtist, String songDuration, String songLocation, int actualPosition) {

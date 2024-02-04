@@ -1,4 +1,4 @@
-package com.example.musicplayer;
+package com.thewebcoder.musicplayer;
 
 import android.app.NotificationChannel;
 

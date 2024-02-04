@@ -22,8 +22,9 @@
     <string name="ps_location">SongLocation</string>
     <string name="playlist_table">Playlists</string>
     <string name="playlist_name">PlaylistName</string>
-    <string name="title_activity_main">MainActivity</string>
     <string name="tab_text_1">ALL SONGS</string>
     <string name="tab_text_2">PLAYLISTS</string>
-    <string name="app_info">"Simple Music Player app for your locally stored music!\n\nFirst release: June 2019\nLast updated: Feb 2021"</string>
+    <string name="app_info">"Simple Music Player app for your locally stored music!\n\nFirst Release: June 2019\nLast Updated: Feb 2024"
+    </string>
+    <string name="new_playlist_name">Enter New Playlist Name</string>
 </resources>

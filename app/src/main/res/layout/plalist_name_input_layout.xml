@@ -14,12 +14,10 @@
         <com.google.android.material.textfield.TextInputEditText
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="15dp"
-            android:layout_marginRight="15dp"
+            android:layout_marginHorizontal="15dp"
             android:id="@+id/playListName"
             style="@style/EditTextTheme"
             android:background="@color/dark"
             android:textColor="@color/white"
-            android:textAlignment="center"
-            android:hint="Enter New Playlist Name" />
+            android:hint="@string/new_playlist_name" />
 </com.google.android.material.textfield.TextInputLayout>

@@ -1,32 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:background="@color/black_overlay"
-    android:orientation="vertical"
-    tools:context=".WelcomeScreen">
+<LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:background="@android:color/black"
+        android:orientation="vertical"
+        tools:context=".WelcomeScreen">
 
     <ImageView
-        android:id="@+id/fullscreen_content"
-        android:layout_width="300dp"
-        android:layout_height="300dp"
-        android:layout_marginTop="150dp"
-        android:layout_gravity="center"
-        android:contentDescription="@string/app_name"
-        android:keepScreenOn="true"
-        android:src="@drawable/mp_logo"
-        android:text="@string/dummy_content" />
+            android:layout_width="300dp"
+            android:layout_height="300dp"
+            android:layout_marginTop="150dp"
+            android:layout_gravity="center_horizontal"
+            android:contentDescription="@string/app_name"
+            android:keepScreenOn="true"
+            android:src="@drawable/mp_logo"
+            android:text="@string/dummy_content" />
+
+    <ProgressBar
+            style="?android:attr/progressBarStyleHorizontal"
+            android:layout_marginTop="20dp"
+            android:layout_marginHorizontal="80dp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/loadingProgress1"/>
 
     <TextView
-        android:id="@+id/main_welcome_text"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:gravity="center"
-        android:keepScreenOn="true"
-        android:layout_marginTop="20dp"
-        android:textColor="@android:color/white"
-        android:text="@string/dummy_content"
-        android:textSize="30sp"/>
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:keepScreenOn="true"
+            android:layout_marginTop="20dp"
+            android:textColor="@android:color/white"
+            android:fontFamily="@font/mulu_regular"
+            android:textStyle="italic"
+            android:text="@string/dummy_content"
+            android:textSize="30sp"/>
 
 </LinearLayout>
